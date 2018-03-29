@@ -18,6 +18,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -72,7 +74,8 @@ public class FXMLPrincipalController implements Initializable {
     private final ObservableList<Alumno> dataAlumnos = FXCollections.observableList(acceso.getAlumnos());
     private final ObservableList<Curso> dataCursos = FXCollections.observableList(acceso.getCursos());
     private final ArrayList<Matricula> dataMatriculas = (ArrayList<Matricula>) acceso.getMatriculas();
-    private ObservableList<Alumno> dataAlumnosDeCurso;
+    private ObservableList<Alumno> dataAlumnosDeCurso = FXCollections.observableList(new ArrayList<>());
+    private ObservableList<Curso> dataCursosDisponibles;
     
     //ListCells para Alumno y Curso
     class AlumnoListCell extends ListCell<Alumno> {
@@ -91,21 +94,39 @@ public class FXMLPrincipalController implements Initializable {
             else { setText(item.getTitulodelcurso()); }
         }
     }
-    //Selecciona de nuevo el elemento que ya se encontraba seleccionado en una listView
-    private static void reselect(ListView<?> l) {
-        l.getSelectionModel().clearAndSelect(l.getSelectionModel().getSelectedIndex());
-    }
     
     private boolean isAvailable(Curso c, Alumno a) {
-        //Si el numero de alumnos del curso excede del maximo, no se puede matricular otro
-        if (acceso.getAlumnosDeCurso(c).size() == c.getNumeroMaximodeAlumnos()) return false;
+        List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(c);
+        /**  
+         * Si el numero de alumnos del curso excede del maximo, no se puede matricular otro
+         * (si la lista de alumnos del curso es 'null', entonces no tiene alumnos)
+        */
+        if (alumnosDeCurso != null && alumnosDeCurso.size() == c.getNumeroMaximodeAlumnos()) return false;
         //Almacenamos los dias y la hora del curso
         List<Dias> diasImparte = c.getDiasimparte();
         LocalTime hora = c.getHora();
         //Buscamos los cursos en los que el alumno tiene matricula
         for (Matricula m : dataMatriculas) {
-            // Si la matricula es del alumno (sus DNI coinciden), comprueba las horas del curso
-            if (a.getDni().equals(m.getAlumno().getDni())) { 
+            /* //PARA TESTING. ELIMINAR ANTES DE TERMINAR
+            Alumno aa = m.getAlumno();
+            System.out.println("Alumno 1:");
+            System.out.println(a.getNombre());
+            System.out.println(a.getDni());
+            System.out.println(a.getEdad());
+            System.out.println(a.getDireccion());
+            System.out.println(a.getFechadealta());
+            System.out.println(a.getFoto());
+            System.out.println("Alumno 2:");
+            System.out.println(aa.getNombre());
+            System.out.println(aa.getDni());
+            System.out.println(aa.getEdad());
+            System.out.println(aa.getDireccion());
+            System.out.println(aa.getFechadealta());
+            System.out.println(aa.getFoto());
+            System.out.println("Iguales: " + a.equals(aa));
+            */
+            // Si la matricula es del alumno, comprueba las horas del curso
+            if (m.getAlumno().equals(a)) { 
                 //Almacenamos los dias y hora del curso en el que ya estaba matriculado
                 List<Dias> misDias = m.getCurso().getDiasimparte();
                 LocalTime miHora = m.getCurso().getHora();
@@ -124,7 +145,6 @@ public class FXMLPrincipalController implements Initializable {
         for (Curso c : dataCursos) {
             if (isAvailable(c, a)) { res.add(c); }
         }
-        //System.out.println(res);
         return FXCollections.observableList(res);
     }
     
@@ -135,7 +155,8 @@ public class FXMLPrincipalController implements Initializable {
         labelEdad.setText("Edad: " + a.getEdad());
         labelDireccion.setText("Dirección: " + a.getDireccion());
         labelFechaAlta.setText("Fecha de alta: " + a.getFechadealta());
-        comboCursos.setItems(getAvailableCursos(a));
+        dataCursosDisponibles = getAvailableCursos(a);
+        comboCursos.setItems(dataCursosDisponibles);
     }
     
     @Override
@@ -162,11 +183,13 @@ public class FXMLPrincipalController implements Initializable {
         //Cada vez que se seleccione un alumno, mostramos sus datos
         listAlumnos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showAlumno(newValue));
         
-        //Codigo para mostrar alumnos de un curso al seleccionarlo
+        //Mostramos los alumnos matriculados en un curso al seleccionarlo
         listCursos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            //Obtiene los alumnos matriculados en el curso seleccionado
-            dataAlumnosDeCurso = FXCollections.observableList(acceso.getAlumnosDeCurso(newValue));
-            listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
+            List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(newValue);
+            if (alumnosDeCurso != null) {
+                dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
+                listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
+            }
         });
         
         //Codigo para matricular a un alumno en un curso
@@ -175,7 +198,12 @@ public class FXMLPrincipalController implements Initializable {
             Curso c = comboCursos.getSelectionModel().getSelectedItem();
             dataMatriculas.add(new Matricula(LocalDate.now(), c, a));
             acceso.salvar();
-            reselect(listCursos);
+            dataCursosDisponibles.remove(c);
+            //Si el curso se encontraba seleccionado en la lista de cursos, añadimos al nuevo alumno
+            if (c.equals(listCursos.getSelectionModel().getSelectedItem())) dataAlumnosDeCurso.add(a);
+            Alert exito = new Alert(AlertType.INFORMATION, "El alumno ha sido matriculado correctamente");
+            exito.setHeaderText(null);
+            exito.show();
         });
         //Codigo para desmatricular a un alumno de un curso
         buttonDesmatricular.setOnAction((e) -> {
@@ -183,11 +211,16 @@ public class FXMLPrincipalController implements Initializable {
             Curso c = listCursos.getSelectionModel().getSelectedItem();
             List<Matricula> l = acceso.getMatriculasDeCurso(c); //Obtenemos las matriculas del curso
             int count = 0; //Buscamos el indice en la lista de la matricula
-            while (!l.get(count).getAlumno().equals(a) && count < l.size()) { count++; }
-            dataMatriculas.remove(l.get(count));
-            acceso.salvar();
-            dataAlumnosDeCurso.remove(a);
-            reselect(listAlumnos);
+            while (count < l.size() && !l.get(count).getAlumno().equals(a)) count++;
+            if (count < l.size()) {
+                dataMatriculas.remove(l.get(count));
+                acceso.salvar();
+                dataAlumnosDeCurso.remove(a);
+                //Si el alumno esta seleccionado en la lista de alumnos, actualiza sus datos
+                if (a.equals(listAlumnos.getSelectionModel().getSelectedItem())) showAlumno(a);
+            } else {
+                new Alert(AlertType.ERROR, "Ha habido un error inesperado. Inténtelo de nuevo más tarde.").show();
+            }
         });
     }
 }
