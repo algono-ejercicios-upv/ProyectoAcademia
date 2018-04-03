@@ -11,6 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 /**
@@ -19,6 +21,9 @@ import javafx.stage.Stage;
  * @author Alejandro
  */
 public class DialogueController implements Initializable {
+    
+    @FXML
+    private Button buttonCreate;
     
     private Stage primaryStage;
     
@@ -38,7 +43,7 @@ public class DialogueController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        //TODO
     }    
     
 }
