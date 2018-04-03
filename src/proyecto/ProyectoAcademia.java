@@ -19,7 +19,7 @@ public class ProyectoAcademia extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLPrincipal.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/proyecto/view/PrincipalView.fxml"));
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("Base de datos Academia");

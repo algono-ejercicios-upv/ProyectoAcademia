@@ -3,9 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package proyecto;
+package proyecto.controller;
 
 import accesoaBD.AccesoaBD;
+import java.io.IOException;
 import modelo.*;
 import java.net.URL;
 import java.time.LocalDate;
@@ -17,7 +18,10 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -26,6 +30,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.image.ImageView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  * "Curso Disponible ({@link #isAvailable})" es aquel que: <p>
@@ -33,7 +39,7 @@ import javafx.scene.image.ImageView;
             - No tenga matriculados el numero maximo de alumnos
  * @author aleja
  */
-public class FXMLPrincipalController implements Initializable {
+public class PrincipalController implements Initializable {
 
     @FXML
     private ListView<Alumno> listAlumnos;
@@ -159,6 +165,22 @@ public class FXMLPrincipalController implements Initializable {
         comboCursos.setItems(dataCursosDisponibles);
     }
     
+    @FXML
+    private void gotoDialogue() {
+        try {
+            Stage stage = new Stage();
+            FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/proyecto/view/DialogueView.fxml"));
+            Parent root = (Parent) myLoader.load();
+            DialogueController dialogue = myLoader.<DialogueController>getController();
+            dialogue.init(stage);
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) {}
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {    
         // Fijamos las CellFactory
@@ -172,11 +194,20 @@ public class FXMLPrincipalController implements Initializable {
         listAlumnos.setItems(dataAlumnos);
         listCursos.setItems(dataCursos);
         
-        // Hacemos que los botones Matricular/Desmatricular solo esten disponibles cuando haya un (curso/alumno de un curso) seleccionado
+        // Hacemos que aquellos botones que dependan de que haya un elemento seleccionado en una lista solo esten disponibles cuando lo haya
         buttonMatricular.disableProperty().bind(
                 Bindings.equal(-1,
                         comboCursos.getSelectionModel().selectedIndexProperty()));
         buttonDesmatricular.disableProperty().bind(
+                Bindings.equal(-1,
+                        listAlumnosDeCurso.getSelectionModel().selectedIndexProperty()));
+        buttonBaja.disableProperty().bind(
+                Bindings.equal(-1,
+                        listAlumnos.getSelectionModel().selectedIndexProperty()));
+        buttonViewCurso.disableProperty().bind(
+                Bindings.equal(-1,
+                        listCursos.getSelectionModel().selectedIndexProperty()));
+        buttonViewMatricula.disableProperty().bind(
                 Bindings.equal(-1,
                         listAlumnosDeCurso.getSelectionModel().selectedIndexProperty()));
         
@@ -205,6 +236,7 @@ public class FXMLPrincipalController implements Initializable {
             exito.setHeaderText(null);
             exito.show();
         });
+        
         //Codigo para desmatricular a un alumno de un curso
         buttonDesmatricular.setOnAction((e) -> {
             Alumno a = listAlumnosDeCurso.getSelectionModel().getSelectedItem();
@@ -222,5 +254,7 @@ public class FXMLPrincipalController implements Initializable {
                 new Alert(AlertType.ERROR, "Ha habido un error inesperado. Inténtelo de nuevo más tarde.").show();
             }
         });
+        //DIALOGUE TESTING
+        buttonAlta.setOnAction(e -> gotoDialogue());
     }
 }
