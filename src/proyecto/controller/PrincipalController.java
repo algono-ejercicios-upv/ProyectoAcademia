@@ -166,13 +166,13 @@ public class PrincipalController implements Initializable {
     }
     
     @FXML
-    private void gotoDialogue() {
+    private void gotoDialogueCursos(Curso actCurso) {
         try {
             Stage stage = new Stage();
-            FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/proyecto/view/DialogueView.fxml"));
+            FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/proyecto/view/DialogueCursoView.fxml"));
             Parent root = (Parent) myLoader.load();
-            DialogueController dialogue = myLoader.<DialogueController>getController();
-            dialogue.init(stage);
+            DialogueCursoController dialogue = myLoader.<DialogueCursoController>getController();
+            dialogue.init(stage, actCurso);
             Scene scene = new Scene(root);
 
             stage.setScene(scene);
@@ -217,7 +217,8 @@ public class PrincipalController implements Initializable {
         //Mostramos los alumnos matriculados en un curso al seleccionarlo
         listCursos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(newValue);
-            if (alumnosDeCurso != null) {
+            if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
+            else {
                 dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
                 listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
             }
@@ -254,7 +255,7 @@ public class PrincipalController implements Initializable {
                 new Alert(AlertType.ERROR, "Ha habido un error inesperado. Inténtelo de nuevo más tarde.").show();
             }
         });
-        //DIALOGUE TESTING
-        buttonAlta.setOnAction(e -> gotoDialogue());
+        buttonNewCurso.setOnAction(e -> gotoDialogueCursos(null));
+        buttonViewCurso.setOnAction(e -> gotoDialogueCursos(listCursos.getSelectionModel().getSelectedItem()));
     }
 }
