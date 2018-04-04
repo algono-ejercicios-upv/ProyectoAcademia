@@ -74,6 +74,8 @@ public class PrincipalController implements Initializable {
     @FXML
     private Button buttonViewCurso;
     @FXML
+    private Button buttonRemoveCurso;
+    @FXML
     private Button buttonViewMatricula;
     
     public static AccesoaBD acceso = new AccesoaBD();
@@ -165,7 +167,6 @@ public class PrincipalController implements Initializable {
         comboCursos.setItems(dataCursosDisponibles);
     }
     
-    @FXML
     private void gotoDialogueCursos(Curso actCurso) {
         try {
             Stage stage = new Stage();
@@ -180,7 +181,15 @@ public class PrincipalController implements Initializable {
             stage.show();
         } catch (IOException e) {}
     }
-    
+    //POR IMPLEMENTAR: TENER EN CUENTA LAS MATRICULAS ANTES DE ELIMINAR, Y AVISAR AL USUARIO EN CONSECUENCIA
+    private void remove(Alumno a) {
+        dataAlumnos.remove(a);
+        acceso.salvar();
+    }
+    private void remove(Curso c) {
+        dataCursos.remove(c);
+        acceso.salvar();
+    }
     @Override
     public void initialize(URL url, ResourceBundle rb) {    
         // Fijamos las CellFactory
@@ -210,6 +219,9 @@ public class PrincipalController implements Initializable {
         buttonViewMatricula.disableProperty().bind(
                 Bindings.equal(-1,
                         listAlumnosDeCurso.getSelectionModel().selectedIndexProperty()));
+        buttonRemoveCurso.disableProperty().bind(
+                Bindings.equal(-1,
+                        listCursos.getSelectionModel().selectedIndexProperty()));
         
         //Cada vez que se seleccione un alumno, mostramos sus datos
         listAlumnos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showAlumno(newValue));
@@ -257,5 +269,7 @@ public class PrincipalController implements Initializable {
         });
         buttonNewCurso.setOnAction(e -> gotoDialogueCursos(null));
         buttonViewCurso.setOnAction(e -> gotoDialogueCursos(listCursos.getSelectionModel().getSelectedItem()));
+        buttonBaja.setOnAction(e -> remove(listAlumnos.getSelectionModel().getSelectedItem()));
+        buttonRemoveCurso.setOnAction(e -> remove(listCursos.getSelectionModel().getSelectedItem()));
     }
 }

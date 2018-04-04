@@ -19,8 +19,8 @@
    <bottom>
       <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="452.0" spacing="30.0" BorderPane.alignment="TOP_LEFT">
          <children>
-            <Button fx:id="buttonCreate" defaultButton="true" focusTraversable="false" mnemonicParsing="false" onAction="#createCurso" prefHeight="25.0" prefWidth="64.0" text="Crear" />
-            <Button focusTraversable="false" mnemonicParsing="false" onAction="#closeDialogue" prefHeight="25.0" prefWidth="64.0" text="Cerrar" />
+            <Button fx:id="buttonCreate" defaultButton="true" mnemonicParsing="false" onAction="#createCurso" prefHeight="25.0" prefWidth="64.0" text="Crear" />
+            <Button fx:id="buttonCerrar" mnemonicParsing="false" onAction="#closeDialogue" prefHeight="25.0" prefWidth="64.0" text="Cerrar" />
          </children>
          <padding>
             <Insets bottom="10.0" />
@@ -60,25 +60,21 @@
                <GridPane.margin>
                   <Insets />
                </GridPane.margin></TextField>
-            <TextField fx:id="textAula" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="7">
-               <GridPane.margin>
-                  <Insets />
-               </GridPane.margin></TextField>
+            <Spinner fx:id="spinnerMaxAlumnos" prefHeight="25.0" prefWidth="89.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
             <DatePicker fx:id="dateInicio" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="3" />
             <DatePicker fx:id="dateFin" layoutX="190.0" layoutY="93.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" />
-            <Spinner fx:id="spinnerMaxAlumnos" prefHeight="25.0" prefWidth="89.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
             <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="5">
                <children>
-                  <Spinner fx:id="spinnerHours" editable="true" focusTraversable="false" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="58.0" />
-                  <Label text=":">
+                  <Spinner fx:id="spinnerHours" editable="true" nodeOrientation="RIGHT_TO_LEFT" prefHeight="25.0" prefWidth="58.0" />
+                  <Label focusTraversable="false" text=":">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <Spinner fx:id="spinnerMinutes" editable="true" focusTraversable="false" layoutX="10.0" layoutY="10.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="58.0" />
+                  <Spinner fx:id="spinnerMinutes" editable="true" layoutX="10.0" layoutY="10.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="25.0" prefWidth="58.0" />
                </children>
             </HBox>
-            <ToolBar fx:id="toolBarDias" focusTraversable="false" prefHeight="40.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="6">
+            <ToolBar fx:id="toolBarDias" focusTraversable="false" prefHeight="40.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
                <items>
                   <ToggleButton focusTraversable="false" mnemonicParsing="false" text="L" />
                   <ToggleButton focusTraversable="false" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="M" />
@@ -89,6 +85,10 @@
                   <ToggleButton focusTraversable="false" layoutX="140.0" layoutY="10.0" mnemonicParsing="false" text="D" />
                </items>
             </ToolBar>
+            <TextField fx:id="textAula" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="7">
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin></TextField>
          </children>
          <BorderPane.margin>
             <Insets left="40.0" right="40.0" top="60.0" />
