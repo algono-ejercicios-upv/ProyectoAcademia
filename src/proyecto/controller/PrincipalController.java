@@ -34,13 +34,13 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
- * "Curso Disponible ({@link #isAvailable})" es aquel que: <p>
-            - No tiene el mismo horario que otro curso en el que el alumno ya esta matriculado <p>
-            - No tenga matriculados el numero maximo de alumnos
+ * 
+ *  Suponemos que: <p>
+ *          - Dos Alumnos son iguales si tienen el mismo DNI <p>
+ *          - Dos Cursos son iguales si tienen el mismo título <p>
  * @author aleja
  */
 public class PrincipalController implements Initializable {
-
     @FXML
     private ListView<Alumno> listAlumnos;
     @FXML
@@ -75,10 +75,9 @@ public class PrincipalController implements Initializable {
     private Button buttonViewCurso;
     @FXML
     private Button buttonRemoveCurso;
-    @FXML
-    private Button buttonViewMatricula;
     
-    public static AccesoaBD acceso = new AccesoaBD();
+    private final AccesoaBD acceso = new AccesoaBD();
+    private final Alert exito = new Alert(AlertType.INFORMATION);
     private final ObservableList<Alumno> dataAlumnos = FXCollections.observableList(acceso.getAlumnos());
     private final ObservableList<Curso> dataCursos = FXCollections.observableList(acceso.getCursos());
     private final ArrayList<Matricula> dataMatriculas = (ArrayList<Matricula>) acceso.getMatriculas();
@@ -102,46 +101,33 @@ public class PrincipalController implements Initializable {
             else { setText(item.getTitulodelcurso()); }
         }
     }
-    
-    private boolean isAvailable(Curso c, Alumno a) {
-        List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(c);
-        /**  
-         * Si el numero de alumnos del curso excede del maximo, no se puede matricular otro
-         * (si la lista de alumnos del curso es 'null', entonces no tiene alumnos)
-        */
+    /**
+     * "Curso Disponible" es aquel que: <p>
+     *      - No tiene el mismo horario que otro curso en el que el alumno ya esta matriculado <p>
+     *      - No tenga matriculados el numero maximo de alumnos <p>
+     * @param c Curso del que se comprueba si esta disponible
+     * @param a Alumno para el que debe estar disponible el curso
+     * @return Si el curso esta disponible o no para el alumno
+     */
+    private boolean isAvailable(Curso c, Alumno a) { 
+        List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(c);  
+        /* Si el numero de alumnos del curso excede del maximo, no se puede matricular otro
+        (si la lista de alumnos del curso es 'null', entonces no tiene alumnos) */
         if (alumnosDeCurso != null && alumnosDeCurso.size() == c.getNumeroMaximodeAlumnos()) return false;
         //Almacenamos los dias y la hora del curso
-        List<Dias> diasImparte = c.getDiasimparte();
+        List<Dias> diasImparte = c.getDiasimparte(); 
         LocalTime hora = c.getHora();
         //Buscamos los cursos en los que el alumno tiene matricula
         for (Matricula m : dataMatriculas) {
-            /* //PARA TESTING. ELIMINAR ANTES DE TERMINAR
-            Alumno aa = m.getAlumno();
-            System.out.println("Alumno 1:");
-            System.out.println(a.getNombre());
-            System.out.println(a.getDni());
-            System.out.println(a.getEdad());
-            System.out.println(a.getDireccion());
-            System.out.println(a.getFechadealta());
-            System.out.println(a.getFoto());
-            System.out.println("Alumno 2:");
-            System.out.println(aa.getNombre());
-            System.out.println(aa.getDni());
-            System.out.println(aa.getEdad());
-            System.out.println(aa.getDireccion());
-            System.out.println(aa.getFechadealta());
-            System.out.println(aa.getFoto());
-            System.out.println("Iguales: " + a.equals(aa));
-            */
             // Si la matricula es del alumno, comprueba las horas del curso
-            if (m.getAlumno().equals(a)) { 
-                //Almacenamos los dias y hora del curso en el que ya estaba matriculado
-                List<Dias> misDias = m.getCurso().getDiasimparte();
-                LocalTime miHora = m.getCurso().getHora();
+            if (m.getAlumno().getDni().equals(a.getDni())) { 
+                //Almacenamos la hora del curso en el que ya estaba matriculado
+                LocalTime mHora = m.getCurso().getHora();
                 // Si las horas coinciden, comprueba los dias
-                if (miHora.equals(hora)) {
+                if (mHora.equals(hora)) {
+                    List<Dias> mDias = m.getCurso().getDiasimparte();
                     // Si alguno de los dias coincide, no esta disponible
-                    for (Dias d : diasImparte) { if (misDias.contains(d)) return false; }
+                    for (Dias d : diasImparte) { if (mDias.contains(d)) return false; }
                 }
             }
         }
@@ -165,6 +151,15 @@ public class PrincipalController implements Initializable {
         labelFechaAlta.setText("Fecha de alta: " + a.getFechadealta());
         dataCursosDisponibles = getAvailableCursos(a);
         comboCursos.setItems(dataCursosDisponibles);
+    }
+    
+    private void showAlumnosDeCurso(Curso c) {
+        List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(c);
+        if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
+        else {
+            dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
+            listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
+        }
     }
     
     private void gotoDialogueCursos(Curso actCurso) {
@@ -191,7 +186,8 @@ public class PrincipalController implements Initializable {
         acceso.salvar();
     }
     @Override
-    public void initialize(URL url, ResourceBundle rb) {    
+    public void initialize(URL url, ResourceBundle rb) {
+        exito.setHeaderText(null);
         // Fijamos las CellFactory
         listAlumnos.setCellFactory(c -> new AlumnoListCell());
         listAlumnosDeCurso.setCellFactory(c -> new AlumnoListCell());
@@ -216,9 +212,6 @@ public class PrincipalController implements Initializable {
         buttonViewCurso.disableProperty().bind(
                 Bindings.equal(-1,
                         listCursos.getSelectionModel().selectedIndexProperty()));
-        buttonViewMatricula.disableProperty().bind(
-                Bindings.equal(-1,
-                        listAlumnosDeCurso.getSelectionModel().selectedIndexProperty()));
         buttonRemoveCurso.disableProperty().bind(
                 Bindings.equal(-1,
                         listCursos.getSelectionModel().selectedIndexProperty()));
@@ -227,14 +220,7 @@ public class PrincipalController implements Initializable {
         listAlumnos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showAlumno(newValue));
         
         //Mostramos los alumnos matriculados en un curso al seleccionarlo
-        listCursos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(newValue);
-            if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
-            else {
-                dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
-                listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
-            }
-        });
+        listCursos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showAlumnosDeCurso(newValue));
         
         //Codigo para matricular a un alumno en un curso
         buttonMatricular.setOnAction((e) -> {
@@ -244,9 +230,9 @@ public class PrincipalController implements Initializable {
             acceso.salvar();
             dataCursosDisponibles.remove(c);
             //Si el curso se encontraba seleccionado en la lista de cursos, añadimos al nuevo alumno
-            if (c.equals(listCursos.getSelectionModel().getSelectedItem())) dataAlumnosDeCurso.add(a);
-            Alert exito = new Alert(AlertType.INFORMATION, "El alumno ha sido matriculado correctamente");
-            exito.setHeaderText(null);
+            Curso selC = listCursos.getSelectionModel().getSelectedItem();
+            if (c.getTitulodelcurso().equals(selC.getTitulodelcurso())) dataAlumnosDeCurso.add(a);
+            exito.setContentText("El alumno ha sido matriculado correctamente");
             exito.show();
         });
         
@@ -261,8 +247,11 @@ public class PrincipalController implements Initializable {
                 dataMatriculas.remove(l.get(count));
                 acceso.salvar();
                 dataAlumnosDeCurso.remove(a);
-                //Si el alumno esta seleccionado en la lista de alumnos, actualiza sus datos
-                if (a.equals(listAlumnos.getSelectionModel().getSelectedItem())) showAlumno(a);
+                //Si el alumno esta seleccionado, añade el curso a la lista de cursos disponibles
+                Alumno selA = listAlumnos.getSelectionModel().getSelectedItem();
+                if (a.getDni().equals(selA.getDni())) dataCursosDisponibles.add(c);
+                exito.setContentText("El alumno ha sido desmatriculado correctamente");
+                exito.show();
             } else {
                 new Alert(AlertType.ERROR, "Ha habido un error inesperado. Inténtelo de nuevo más tarde.").show();
             }

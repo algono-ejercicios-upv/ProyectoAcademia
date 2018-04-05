@@ -9,7 +9,6 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
@@ -98,14 +97,11 @@
                            <children>
                               <Label text="Alumnos matriculados:" />
                               <ListView fx:id="listAlumnosDeCurso" focusTraversable="false" prefHeight="278.0" prefWidth="198.0" VBox.vgrow="ALWAYS" />
-                              <BorderPane>
-                                 <right>
-                                    <Button fx:id="buttonDesmatricular" alignment="CENTER_RIGHT" focusTraversable="false" mnemonicParsing="false" text="Desmatricular" BorderPane.alignment="CENTER" />
-                                 </right>
-                                 <left>
-                                    <Button fx:id="buttonViewMatricula" focusTraversable="false" mnemonicParsing="false" text="Ver matrícula" BorderPane.alignment="CENTER" />
-                                 </left>
-                              </BorderPane>
+                              <VBox alignment="CENTER" spacing="5.0">
+                                 <children>
+                                    <Button fx:id="buttonDesmatricular" alignment="CENTER_RIGHT" focusTraversable="false" mnemonicParsing="false" text="Desmatricular" />
+                                 </children>
+                              </VBox>
                            </children>
                         </VBox>
                      </children>
