@@ -242,7 +242,7 @@ public class PrincipalController implements Initializable {
             Curso c = listCursos.getSelectionModel().getSelectedItem();
             List<Matricula> l = acceso.getMatriculasDeCurso(c); //Obtenemos las matriculas del curso
             int count = 0; //Buscamos el indice en la lista de la matricula
-            while (count < l.size() && !l.get(count).getAlumno().equals(a)) count++;
+            while (count < l.size() && !l.get(count).getAlumno().getDni().equals(a.getDni())) count++;
             if (count < l.size()) {
                 dataMatriculas.remove(l.get(count));
                 acceso.salvar();

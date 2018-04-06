@@ -22,7 +22,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -30,7 +29,6 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.util.converter.LocalTimeStringConverter;
 
 /**
  * FXML Controller class
@@ -52,7 +50,9 @@ public class DialogueCursoController implements Initializable {
     @FXML
     private Spinner<Integer> spinnerMaxAlumnos;
     @FXML
-    private Spinner<LocalTime> spinnerTime;
+    private Spinner<Integer> spinnerHours;
+    @FXML
+    private Spinner<Integer> spinnerMinutes;
     @FXML
     private TextField textTitulo;
     @FXML
@@ -65,23 +65,6 @@ public class DialogueCursoController implements Initializable {
     private Stage primaryStage;
     public static final Dias[] SEMANA = Dias.values();
 
-    class TimeSpinnerValueFactory extends SpinnerValueFactory<LocalTime> {
-        
-        public TimeSpinnerValueFactory() {
-            super();
-            setConverter(new LocalTimeStringConverter());
-            setValue(LocalTime.MIDNIGHT);
-        }
-        @Override
-        public void increment(int steps) {
-            setValue(getValue().plusMinutes(steps));
-        }
-        @Override
-        public void decrement(int steps) {
-            setValue(getValue().minusMinutes(steps));
-        }
-    }
-
     public void init(Stage stage, Curso curso) {
         primaryStage = stage;
         if (curso == null) {
@@ -93,7 +76,9 @@ public class DialogueCursoController implements Initializable {
             spinnerMaxAlumnos.getValueFactory().setValue(curso.getNumeroMaximodeAlumnos());
             dateInicio.setValue(curso.getFechainicio());
             dateFin.setValue(curso.getFechafin());
-            spinnerTime.getValueFactory().setValue(curso.getHora());
+            LocalTime hora = curso.getHora();
+            spinnerHours.getValueFactory().setValue(hora.getHour());
+            spinnerMinutes.getValueFactory().setValue(hora.getMinute());
             setDias(curso.getDiasimparte());
             textAula.setText(curso.getAula());
             buttonCreate.setDisable(true);
@@ -113,7 +98,11 @@ public class DialogueCursoController implements Initializable {
             ToggleButton b = (ToggleButton) items.get(i);
             if (b.isSelected()) dias.add(SEMANA[i]);
         }
-        if (dias.isEmpty()) { throw new IllegalArgumentException(); }
+        if (dias.isEmpty()) {
+            String message = "Días no seleccionados;"
+                            + "No ha seleccionado ningún día para el curso.\nSeleccione por lo menos uno y vuelva a intentarlo.";
+            throw new IllegalArgumentException(message); 
+        }
         return dias;
     }
     /**
@@ -133,59 +122,54 @@ public class DialogueCursoController implements Initializable {
         }
     }
     /**
-     * El spinner no actualiza los datos puestos a mano si el usuario no pulsa 'ENTER',
-     * asi que nos aseguramos de que lo haga antes de que se cree el curso utilizando 'spinner.increment(0)'.
-     * Ademas, comprobamos que los campos de texto no esten vacios.
+     * Comprobamos que el campo de texto no este vacio y lo devuelve.
      */
-    private void checkFields() {
-        ObservableList<Node> children = form.getChildren();
-        int i = 0;
-        while (i < children.size()) {
-            Node n = children.get(i);
-            //Comprueba que los campos de texto no esten vacios
-            if (n instanceof TextField) {
-                if (((TextField) n).getText().isEmpty()){
-                    String message = "Campo vacío;"
+    private String getText(TextField field) {
+        String res = field.getText();
+        if (res.isEmpty()) {
+            String message = "Campo vacío;"
                             + "Alguno de los campos está vacío.\nRellene todos los campos y vuelva a intentarlo.";
-                    throw new IllegalArgumentException(message);
-                }
-            }
-            i++;
+            throw new IllegalArgumentException(message); 
         }
+        return res;
     }
-    //Comprueba que las fechas sean validas (La fecha de inicio no es anterior a la actual, y la de inicio es anterior a la de fin)
-    private void checkDates() {
+    //Comprueba que las fechas sean validas y las devuelve(La fecha de inicio no es anterior a la actual, y la de inicio es anterior a la de fin)
+    private LocalDate getFechaInicio() {
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
-        String message;
         if (inicio.isBefore(LocalDate.now())) {
-            message = "Fecha de inicio inválida;"
+            String message = "Fecha de inicio inválida;"
                     + "La fecha de inicio no debe ser anterior a la fecha de hoy.\nIntroduzca una fecha válida y vuelva a intentarlo.";
             dateInicio.requestFocus();
             throw new IllegalArgumentException(message);
-        } else if (!inicio.isBefore(fin)) {
-            message = "Fecha de fin inválida;"
+        }
+        return inicio;
+    }
+    private LocalDate getFechaFin() {
+        LocalDate inicio = dateInicio.getValue();
+        LocalDate fin = dateFin.getValue();
+        if (fin.isAfter(inicio)) {
+            String message = "Fecha de fin inválida;"
                     + "La fecha de fin no debe ser anterior a la de inicio.\nIntroduzca una fecha válida y vuelva a intentarlo.";
             dateFin.requestFocus();
             throw new IllegalArgumentException(message);
         }
+        return fin;
     }
     @FXML
     private void createCurso(ActionEvent event) {
         try {
-            checkFields();            
-            checkDates();
             AccesoaBD acceso = new AccesoaBD();
             ArrayList<Curso> listCursos = (ArrayList<Curso>) acceso.getCursos();
             Curso curso = new Curso(
-                    textTitulo.getText(), //Titulo del curso
-                    textProfesor.getText(), //Profesor asignado
+                    getText(textTitulo), //Titulo del curso
+                    getText(textProfesor), //Profesor asignado
                     spinnerMaxAlumnos.getValue(), //Numero maximo de alumnos
-                    dateInicio.getValue(), //Fecha de inicio
-                    dateFin.getValue(), //Fecha de fin
-                    spinnerTime.getValue(), //Hora
+                    getFechaInicio(), //Fecha de inicio
+                    getFechaFin(), //Fecha de fin
+                    LocalTime.of(spinnerHours.getValue(), spinnerMinutes.getValue()), //Hora
                     getDias(), //Dias de la SEMANA que se imparte
-                    textAula.getText()); //Aula
+                    getText(textAula)); //Aula
             listCursos.add(curso);
             acceso.salvar();
             closeDialogue(event);
@@ -203,14 +187,19 @@ public class DialogueCursoController implements Initializable {
         Node mynode = (Node) event.getSource();
         mynode.getScene().getWindow().hide();
     }
-
+    
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         spinnerMaxAlumnos.setValueFactory(new IntegerSpinnerValueFactory(0, Integer.MAX_VALUE));
-        spinnerTime.setValueFactory(new TimeSpinnerValueFactory());
+        IntegerSpinnerValueFactory valueFactory = new IntegerSpinnerValueFactory(0, 23);
+        valueFactory.setWrapAround(true);
+        spinnerHours.setValueFactory(valueFactory);
+        valueFactory = new IntegerSpinnerValueFactory(0, 59);
+        valueFactory.setWrapAround(true);
+        spinnerMinutes.setValueFactory(valueFactory);
         dateInicio.setValue(LocalDate.now());
         dateFin.setValue(LocalDate.now());
     }
