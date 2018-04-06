@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -25,6 +26,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -142,33 +144,13 @@ public class PrincipalController implements Initializable {
         return FXCollections.observableList(res);
     }
     
-    private void showAlumno(Alumno a) {
-        image.setImage(a.getFoto());
-        labelNombre.setText("Nombre: " + a.getNombre());
-        labelDNI.setText("DNI: " + a.getDni());
-        labelEdad.setText("Edad: " + a.getEdad());
-        labelDireccion.setText("Dirección: " + a.getDireccion());
-        labelFechaAlta.setText("Fecha de alta: " + a.getFechadealta());
-        dataCursosDisponibles = getAvailableCursos(a);
-        comboCursos.setItems(dataCursosDisponibles);
-    }
-    
-    private void showAlumnosDeCurso(Curso c) {
-        List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(c);
-        if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
-        else {
-            dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
-            listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
-        }
-    }
-    
     private void gotoDialogueCursos(Curso actCurso) {
         try {
             Stage stage = new Stage();
             FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/proyecto/view/DialogueCursoView.fxml"));
             Parent root = (Parent) myLoader.load();
-            DialogueCursoController dialogue = myLoader.<DialogueCursoController>getController();
-            dialogue.init(stage, actCurso);
+            DialogueCursoController cursoCreator = myLoader.<DialogueCursoController>getController();
+            cursoCreator.init(stage, dataCursos, actCurso);
             Scene scene = new Scene(root);
 
             stage.setScene(scene);
@@ -176,14 +158,58 @@ public class PrincipalController implements Initializable {
             stage.show();
         } catch (IOException e) {}
     }
-    //POR IMPLEMENTAR: TENER EN CUENTA LAS MATRICULAS ANTES DE ELIMINAR, Y AVISAR AL USUARIO EN CONSECUENCIA
+    //Metodos para eliminar alumno o curso. Tienen en cuenta si tienen matriculas asociadas o no, y avisan de ello al usuario.
     private void remove(Alumno a) {
+        ArrayList<Matricula> matDelAlumno = new ArrayList<>();
+        ObservableList<Curso> cursosDelAlumno = FXCollections.observableArrayList();
+        //Buscamos los cursos en los que el alumno tiene matricula
+        for (Matricula m : dataMatriculas) {
+            if (m.getAlumno().getDni().equals(a.getDni())) {
+                matDelAlumno.add(m);
+                cursosDelAlumno.add(m.getCurso());
+            }
+        }
+        if (!matDelAlumno.isEmpty()) {
+            Alert aviso = new Alert(AlertType.CONFIRMATION);
+            aviso.setContentText("Si da de baja al alumno, este será desmatriculado automáticamente de los siguientes cursos:\n ");
+            ListView<Curso> expList = new ListView<>();
+            expList.setFocusTraversable(false);
+            expList.setCellFactory(c -> new CursoListCell());
+            expList.setItems(cursosDelAlumno);
+            aviso.getDialogPane().setExpandableContent(expList);
+            Optional<ButtonType> result = aviso.showAndWait();
+            if (result.get() != ButtonType.OK) return;
+            for (Matricula m : matDelAlumno) {
+                dataMatriculas.remove(m);
+            }
+        }
         dataAlumnos.remove(a);
+        dataAlumnosDeCurso.remove(a); //Si el alumno estaba en la lista, lo borra. Si no estaba, no pasa nada (ver metodo remove()).
         acceso.salvar();
+        exito.setContentText("El alumno ha sido dado de baja correctamente");
+        exito.show();
     }
     private void remove(Curso c) {
+        if (!dataAlumnosDeCurso.isEmpty()) {
+            Alert aviso = new Alert(AlertType.CONFIRMATION);
+            aviso.setContentText("Si elimina el curso, los siguientes alumnos serán desmatriculados automáticamente:\n ");
+            ListView<Alumno> expList = new ListView<>();
+            expList.setFocusTraversable(false);
+            expList.setCellFactory(lc -> new AlumnoListCell());
+            expList.setItems(dataAlumnosDeCurso);
+            aviso.getDialogPane().setExpandableContent(expList);
+            Optional<ButtonType> result = aviso.showAndWait();
+            if (result.get() != ButtonType.OK) return;
+            List<Matricula> matriculasDeCurso = acceso.getMatriculasDeCurso(c);
+            for (Matricula m : matriculasDeCurso) {
+                dataMatriculas.remove(m);
+            }
+        }
         dataCursos.remove(c);
+        if (isAvailable(c, listAlumnos.getSelectionModel().getSelectedItem())) dataCursosDisponibles.add(c);
         acceso.salvar();
+        exito.setContentText("El curso ha sido eliminado correctamente");
+        exito.show();
     }
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -217,10 +243,26 @@ public class PrincipalController implements Initializable {
                         listCursos.getSelectionModel().selectedIndexProperty()));
         
         //Cada vez que se seleccione un alumno, mostramos sus datos
-        listAlumnos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showAlumno(newValue));
+        listAlumnos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            image.setImage(newValue.getFoto());
+            labelNombre.setText("Nombre: " + newValue.getNombre());
+            labelDNI.setText("DNI: " + newValue.getDni());
+            labelEdad.setText("Edad: " + newValue.getEdad());
+            labelDireccion.setText("Dirección: " + newValue.getDireccion());
+            labelFechaAlta.setText("Fecha de alta: " + newValue.getFechadealta());
+            dataCursosDisponibles = getAvailableCursos(newValue);
+            comboCursos.setItems(dataCursosDisponibles);
+        });
         
         //Mostramos los alumnos matriculados en un curso al seleccionarlo
-        listCursos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showAlumnosDeCurso(newValue));
+        listCursos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(newValue);
+            if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
+            else {
+                dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
+                listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
+            }
+        });
         
         //Codigo para matricular a un alumno en un curso
         buttonMatricular.setOnAction((e) -> {
@@ -231,7 +273,7 @@ public class PrincipalController implements Initializable {
             dataCursosDisponibles.remove(c);
             //Si el curso se encontraba seleccionado en la lista de cursos, añadimos al nuevo alumno
             Curso selC = listCursos.getSelectionModel().getSelectedItem();
-            if (c.getTitulodelcurso().equals(selC.getTitulodelcurso())) dataAlumnosDeCurso.add(a);
+            if (selC != null && c.getTitulodelcurso().equals(selC.getTitulodelcurso())) dataAlumnosDeCurso.add(a);
             exito.setContentText("El alumno ha sido matriculado correctamente");
             exito.show();
         });
@@ -249,7 +291,7 @@ public class PrincipalController implements Initializable {
                 dataAlumnosDeCurso.remove(a);
                 //Si el alumno esta seleccionado, añade el curso a la lista de cursos disponibles
                 Alumno selA = listAlumnos.getSelectionModel().getSelectedItem();
-                if (a.getDni().equals(selA.getDni())) dataCursosDisponibles.add(c);
+                if (selA != null && a.getDni().equals(selA.getDni())) dataCursosDisponibles.add(c);
                 exito.setContentText("El alumno ha sido desmatriculado correctamente");
                 exito.show();
             } else {
@@ -258,6 +300,8 @@ public class PrincipalController implements Initializable {
         });
         buttonNewCurso.setOnAction(e -> gotoDialogueCursos(null));
         buttonViewCurso.setOnAction(e -> gotoDialogueCursos(listCursos.getSelectionModel().getSelectedItem()));
+        buttonAlta.setOnAction((e) -> {
+        });
         buttonBaja.setOnAction(e -> remove(listAlumnos.getSelectionModel().getSelectedItem()));
         buttonRemoveCurso.setOnAction(e -> remove(listCursos.getSelectionModel().getSelectedItem()));
     }

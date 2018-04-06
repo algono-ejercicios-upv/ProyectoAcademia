@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -61,12 +62,14 @@ public class DialogueCursoController implements Initializable {
     private TextField textAula;
     @FXML
     private ToolBar toolBarDias;
-
+    
+    private ObservableList<Curso> dataCursos;
     private Stage primaryStage;
     public static final Dias[] SEMANA = Dias.values();
 
-    public void init(Stage stage, Curso curso) {
+    public void init(Stage stage, ObservableList<Curso> dC, Curso curso) {
         primaryStage = stage;
+        dataCursos = dC;
         if (curso == null) {
             stage.setTitle("Nuevo Curso");
         } else {
@@ -160,7 +163,6 @@ public class DialogueCursoController implements Initializable {
     private void createCurso(ActionEvent event) {
         try {
             AccesoaBD acceso = new AccesoaBD();
-            ArrayList<Curso> listCursos = (ArrayList<Curso>) acceso.getCursos();
             Curso curso = new Curso(
                     getText(textTitulo), //Titulo del curso
                     getText(textProfesor), //Profesor asignado
@@ -170,7 +172,7 @@ public class DialogueCursoController implements Initializable {
                     LocalTime.of(spinnerHours.getValue(), spinnerMinutes.getValue()), //Hora
                     getDias(), //Dias de la SEMANA que se imparte
                     getText(textAula)); //Aula
-            listCursos.add(curso);
+            dataCursos.add(curso);
             acceso.salvar();
             closeDialogue(event);
         } catch (IllegalArgumentException e) {
