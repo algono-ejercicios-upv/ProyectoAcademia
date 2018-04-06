@@ -11,6 +11,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,6 +27,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.StringConverter;
 import modelo.Alumno;
 
 /**
@@ -55,7 +58,7 @@ public class DialogueAlumnoController implements Initializable {
     private Stage primaryStage;
     private ObservableList<Alumno> dataAlumnos;
     private final FileChooser imageChooser = new FileChooser();
-    private File imageFile;
+    private ObjectProperty<File> imageFile = new SimpleObjectProperty<>();
     
     public void init(Stage stage, ObservableList<Alumno> dA) {
         primaryStage = stage;
@@ -68,16 +71,20 @@ public class DialogueAlumnoController implements Initializable {
         String nombre = textNombre.getText();
         String DNI = textDNI.getText();
         String direccion = textDireccion.getText();
-        String sImagePath = textImagePath.getText();
         if (nombre.isEmpty()
             || DNI.isEmpty()
-            || direccion.isEmpty()
-            || sImagePath.isEmpty())
+            || direccion.isEmpty())
         {
             Alert alert = new Alert(AlertType.ERROR, "Alguno de los campos está vacío. Revíselo e inténtelo de nuevo.");
             alert.setHeaderText("Campo vacío");
             alert.show();
-        } 
+        }
+        else if (imageFile.getValue() == null) {
+            Alert alert = new Alert(AlertType.ERROR, "La ruta del archivo de imagen es errónea o no está definida. Revíselo e inténtelo de nuevo.");
+            alert.setHeaderText("Ruta vacía o errónea");
+            alert.show();
+            textImagePath.requestFocus();
+        }
         else {
             int count = 0;
             while (count < dataAlumnos.size() && !dataAlumnos.get(count).getDni().equals(DNI)) count++;
@@ -86,7 +93,7 @@ public class DialogueAlumnoController implements Initializable {
                 alert.setHeaderText("El alumno ya existe");
                 alert.show();
             } else {
-                Image foto = new Image(imageFile.toURI().toString());
+                Image foto = new Image(imageFile.getValue().toURI().toString());
                 Alumno a = new Alumno(DNI, nombre, spinnerEdad.getValue(), direccion, LocalDate.now(), foto);
                 dataAlumnos.add(a);
                 Alert exito = new Alert(AlertType.INFORMATION, "El alumno ha sido dado de alta correctamente");
@@ -114,13 +121,22 @@ public class DialogueAlumnoController implements Initializable {
               "Archivos de imagen", "*.jpg", "*.jpeg", "*.png", "*.bmp");
         imageChooser.getExtensionFilters().add(fileExtensions);
         buttonExaminar.setOnAction((event) -> {
-            try {
-                File tempFile = imageChooser.showOpenDialog(primaryStage);
-                if (tempFile != null) {
-                    imageFile = tempFile;
-                    textImagePath.setText(imageFile.getCanonicalPath());
+                imageFile.setValue(imageChooser.showOpenDialog(primaryStage));
+        });
+        //Permite tanto meter una ruta en el TextField (si no es válida el File será null), como elegir una con "Examinar" y que aparezca en el TextField
+        Bindings.bindBidirectional(textImagePath.textProperty(), imageFile, new StringConverter<File>() {
+            @Override
+            public String toString(File object) {
+                if (object != null) {
+                    try { return object.getCanonicalPath(); } catch (IOException ex) {}
                 }
-            } catch (IOException ex) {}
+                return ""; //Tanto si el objeto resultó ser "null" como si saltó la IOException, devuelve una String vacía
+            }
+            @Override
+            public File fromString(String string) {
+                File file = new File(string);
+                return file.isFile() ? file : null;
+            }
         });
     }        
 }

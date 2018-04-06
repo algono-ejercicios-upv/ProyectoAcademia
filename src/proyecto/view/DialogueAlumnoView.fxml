@@ -54,7 +54,7 @@
             <TextField fx:id="textDireccion" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <children>
-                  <TextField fx:id="textImagePath" editable="false" HBox.hgrow="ALWAYS" />
+                  <TextField fx:id="textImagePath" HBox.hgrow="ALWAYS" />
                   <Button fx:id="buttonExaminar" mnemonicParsing="false" text="Examinar" />
                </children>
             </HBox>
