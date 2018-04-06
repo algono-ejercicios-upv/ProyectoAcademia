@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -151,7 +150,7 @@ public class DialogueCursoController implements Initializable {
     private LocalDate getFechaFin() {
         LocalDate inicio = dateInicio.getValue();
         LocalDate fin = dateFin.getValue();
-        if (fin.isAfter(inicio)) {
+        if (inicio.isAfter(fin)) {
             String message = "Fecha de fin inválida;"
                     + "La fecha de fin no debe ser anterior a la de inicio.\nIntroduzca una fecha válida y vuelva a intentarlo.";
             dateFin.requestFocus();
@@ -174,9 +173,12 @@ public class DialogueCursoController implements Initializable {
                     getText(textAula)); //Aula
             dataCursos.add(curso);
             acceso.salvar();
+            Alert exito = new Alert(AlertType.INFORMATION, "El curso ha sido creado correctamente");
+            exito.setHeaderText(null);
+            exito.showAndWait();
             closeDialogue(event);
-        } catch (IllegalArgumentException e) {
-            String[] split = e.getMessage().split(";");
+        } catch (IllegalArgumentException ex) {
+            String[] split = ex.getMessage().split(";");
             Alert error = new Alert(AlertType.ERROR);
             error.setHeaderText(split[0]);
             error.setContentText(split[1]);

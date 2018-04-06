@@ -135,7 +135,9 @@ public class PrincipalController implements Initializable {
         }
         return true; //Si todo se ha cumplido correctamente, esta disponible
     }
-    
+    private ObservableList<Curso> getAvailableCursos() {
+        return getAvailableCursos(listAlumnos.getSelectionModel().getSelectedItem());
+    }
     private ObservableList<Curso> getAvailableCursos(Alumno a) {
         List<Curso> res = new ArrayList<>(); 
         for (Curso c : dataCursos) {
@@ -156,7 +158,22 @@ public class PrincipalController implements Initializable {
             stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.show();
-        } catch (IOException e) {}
+        } catch (IOException ex) {}
+    }
+    @FXML
+    private void gotoDialogueAlumnos() {
+        try {
+            Stage stage = new Stage();
+            FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/proyecto/view/DialogueAlumnoView.fxml"));
+            Parent root = (Parent) myLoader.load();
+            DialogueAlumnoController alumnoCreator = myLoader.<DialogueAlumnoController>getController();
+            alumnoCreator.init(stage, dataAlumnos);
+            Scene scene = new Scene(root);
+
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException ex) {}
     }
     //Metodos para eliminar alumno o curso. Tienen en cuenta si tienen matriculas asociadas o no, y avisan de ello al usuario.
     private void remove(Alumno a) {
@@ -265,7 +282,7 @@ public class PrincipalController implements Initializable {
         });
         
         //Codigo para matricular a un alumno en un curso
-        buttonMatricular.setOnAction((e) -> {
+        buttonMatricular.setOnAction((event) -> {
             Alumno a = listAlumnos.getSelectionModel().getSelectedItem();
             Curso c = comboCursos.getSelectionModel().getSelectedItem();
             dataMatriculas.add(new Matricula(LocalDate.now(), c, a));
@@ -274,12 +291,14 @@ public class PrincipalController implements Initializable {
             //Si el curso se encontraba seleccionado en la lista de cursos, añadimos al nuevo alumno
             Curso selC = listCursos.getSelectionModel().getSelectedItem();
             if (selC != null && c.getTitulodelcurso().equals(selC.getTitulodelcurso())) dataAlumnosDeCurso.add(a);
+            dataCursosDisponibles = getAvailableCursos();
+            comboCursos.setItems(dataCursosDisponibles);
             exito.setContentText("El alumno ha sido matriculado correctamente");
             exito.show();
         });
         
         //Codigo para desmatricular a un alumno de un curso
-        buttonDesmatricular.setOnAction((e) -> {
+        buttonDesmatricular.setOnAction((event) -> {
             Alumno a = listAlumnosDeCurso.getSelectionModel().getSelectedItem();
             Curso c = listCursos.getSelectionModel().getSelectedItem();
             List<Matricula> l = acceso.getMatriculasDeCurso(c); //Obtenemos las matriculas del curso
@@ -289,20 +308,17 @@ public class PrincipalController implements Initializable {
                 dataMatriculas.remove(l.get(count));
                 acceso.salvar();
                 dataAlumnosDeCurso.remove(a);
-                //Si el alumno esta seleccionado, añade el curso a la lista de cursos disponibles
-                Alumno selA = listAlumnos.getSelectionModel().getSelectedItem();
-                if (selA != null && a.getDni().equals(selA.getDni())) dataCursosDisponibles.add(c);
+                dataCursosDisponibles = getAvailableCursos();
+                comboCursos.setItems(dataCursosDisponibles);
                 exito.setContentText("El alumno ha sido desmatriculado correctamente");
                 exito.show();
             } else {
                 new Alert(AlertType.ERROR, "Ha habido un error inesperado. Inténtelo de nuevo más tarde.").show();
             }
         });
-        buttonNewCurso.setOnAction(e -> gotoDialogueCursos(null));
-        buttonViewCurso.setOnAction(e -> gotoDialogueCursos(listCursos.getSelectionModel().getSelectedItem()));
-        buttonAlta.setOnAction((e) -> {
-        });
-        buttonBaja.setOnAction(e -> remove(listAlumnos.getSelectionModel().getSelectedItem()));
-        buttonRemoveCurso.setOnAction(e -> remove(listCursos.getSelectionModel().getSelectedItem()));
+        buttonNewCurso.setOnAction(event -> gotoDialogueCursos(null));
+        buttonViewCurso.setOnAction(event -> gotoDialogueCursos(listCursos.getSelectionModel().getSelectedItem()));
+        buttonBaja.setOnAction(event -> remove(listAlumnos.getSelectionModel().getSelectedItem()));
+        buttonRemoveCurso.setOnAction(event -> remove(listCursos.getSelectionModel().getSelectedItem()));
     }
 }
