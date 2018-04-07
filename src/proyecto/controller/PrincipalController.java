@@ -11,6 +11,7 @@ import modelo.*;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +80,8 @@ public class PrincipalController implements Initializable {
     private Button buttonRemoveCurso;
     
     private final AccesoaBD acceso = new AccesoaBD();
+    //Formato para mostrar las fechas de una forma más cómoda para un usuario hispanohablante
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/LL/yyyy");
     private final Alert exito = new Alert(AlertType.INFORMATION);
     private final ObservableList<Alumno> dataAlumnos = FXCollections.observableList(acceso.getAlumnos());
     private final ObservableList<Curso> dataCursos = FXCollections.observableList(acceso.getCursos());
@@ -266,7 +269,7 @@ public class PrincipalController implements Initializable {
             labelDNI.setText("DNI: " + newValue.getDni());
             labelEdad.setText("Edad: " + newValue.getEdad());
             labelDireccion.setText("Dirección: " + newValue.getDireccion());
-            labelFechaAlta.setText("Fecha de alta: " + newValue.getFechadealta());
+            labelFechaAlta.setText("Fecha de alta: " + newValue.getFechadealta().format(formatter));
             dataCursosDisponibles = getAvailableCursos(newValue);
             comboCursos.setItems(dataCursosDisponibles);
         });

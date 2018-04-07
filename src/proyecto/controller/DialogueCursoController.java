@@ -29,6 +29,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import javafx.util.converter.IntegerStringConverter;
 
 /**
  * FXML Controller class
@@ -197,11 +198,17 @@ public class DialogueCursoController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        IntegerStringConverter timeConverter = new IntegerStringConverter() {
+            @Override public String toString(Integer value) { return String.format("%02d", value); }
+            @Override public Integer fromString(String string) { return super.fromString(string); }
+        };
         spinnerMaxAlumnos.setValueFactory(new IntegerSpinnerValueFactory(0, Integer.MAX_VALUE));
         IntegerSpinnerValueFactory valueFactory = new IntegerSpinnerValueFactory(0, 23);
+        valueFactory.setConverter(timeConverter);
         valueFactory.setWrapAround(true);
         spinnerHours.setValueFactory(valueFactory);
         valueFactory = new IntegerSpinnerValueFactory(0, 59);
+        valueFactory.setConverter(timeConverter);
         valueFactory.setWrapAround(true);
         spinnerMinutes.setValueFactory(valueFactory);
         dateInicio.setValue(LocalDate.now());

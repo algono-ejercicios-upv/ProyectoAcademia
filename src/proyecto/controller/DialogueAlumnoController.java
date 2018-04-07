@@ -58,7 +58,7 @@ public class DialogueAlumnoController implements Initializable {
     private Stage primaryStage;
     private ObservableList<Alumno> dataAlumnos;
     private final FileChooser imageChooser = new FileChooser();
-    private ObjectProperty<File> imageFile = new SimpleObjectProperty<>();
+    private final ObjectProperty<File> imageFile = new SimpleObjectProperty<>();
     
     public void init(Stage stage, ObservableList<Alumno> dA) {
         primaryStage = stage;
@@ -71,6 +71,7 @@ public class DialogueAlumnoController implements Initializable {
         String nombre = textNombre.getText();
         String DNI = textDNI.getText();
         String direccion = textDireccion.getText();
+        File imagePath = imageFile.getValue();
         if (nombre.isEmpty()
             || DNI.isEmpty()
             || direccion.isEmpty())
@@ -79,11 +80,12 @@ public class DialogueAlumnoController implements Initializable {
             alert.setHeaderText("Campo vacío");
             alert.show();
         }
-        else if (imageFile.getValue() == null) {
+        else if (imagePath == null || !imagePath.isFile()) {
             Alert alert = new Alert(AlertType.ERROR, "La ruta del archivo de imagen es errónea o no está definida. Revíselo e inténtelo de nuevo.");
             alert.setHeaderText("Ruta vacía o errónea");
             alert.show();
             textImagePath.requestFocus();
+            textImagePath.selectEnd();
         }
         else {
             int count = 0;
@@ -93,7 +95,7 @@ public class DialogueAlumnoController implements Initializable {
                 alert.setHeaderText("El alumno ya existe");
                 alert.show();
             } else {
-                Image foto = new Image(imageFile.getValue().toURI().toString());
+                Image foto = new Image(imagePath.toURI().toString());
                 Alumno a = new Alumno(DNI, nombre, spinnerEdad.getValue(), direccion, LocalDate.now(), foto);
                 dataAlumnos.add(a);
                 Alert exito = new Alert(AlertType.INFORMATION, "El alumno ha sido dado de alta correctamente");
@@ -121,7 +123,14 @@ public class DialogueAlumnoController implements Initializable {
               "Archivos de imagen", "*.jpg", "*.jpeg", "*.png", "*.bmp");
         imageChooser.getExtensionFilters().add(fileExtensions);
         buttonExaminar.setOnAction((event) -> {
-                imageFile.setValue(imageChooser.showOpenDialog(primaryStage));
+            File initialDir = imageFile.getValue();
+            if (initialDir != null) { //Gracias al converter, si la ruta no existe será null, así que no hace falta comprobarlo
+                while (!initialDir.isDirectory()) initialDir = initialDir.getParentFile();
+                imageChooser.setInitialDirectory(initialDir);
+            }
+            File tmpFile = imageChooser.showOpenDialog(primaryStage);
+            //A pesar de que el converter ya comprueba si es null, lo comprobamos aquí para que, si esto ocurre, la ruta anterior no cambie.
+            if (tmpFile != null) imageFile.setValue(tmpFile);
         });
         //Permite tanto meter una ruta en el TextField (si no es válida el File será null), como elegir una con "Examinar" y que aparezca en el TextField
         Bindings.bindBidirectional(textImagePath.textProperty(), imageFile, new StringConverter<File>() {
@@ -135,7 +144,7 @@ public class DialogueAlumnoController implements Initializable {
             @Override
             public File fromString(String string) {
                 File file = new File(string);
-                return file.isFile() ? file : null;
+                return file.exists() ? file : null;
             }
         });
     }        
