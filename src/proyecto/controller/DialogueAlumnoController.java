@@ -28,7 +28,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import modelo.Alumno;
@@ -41,10 +40,6 @@ import modelo.Alumno;
 public class DialogueAlumnoController implements Initializable {
 
     @FXML
-    private Button buttonCreate;
-    @FXML
-    private Button buttonCerrar;
-    @FXML
     private TextField textNombre;
     @FXML
     private TextField textDNI;
@@ -56,8 +51,6 @@ public class DialogueAlumnoController implements Initializable {
     private TextField textImagePath;
     @FXML
     private Button buttonExaminar;
-    @FXML
-    private HBox loadingImg;
     
     public static final int MAX_EDAD = 200; //Valor en base a la esperanza de vida de una persona
     private Stage primaryStage;
@@ -93,7 +86,6 @@ public class DialogueAlumnoController implements Initializable {
             } else {
                 Alumno a = new Alumno(DNI, nombre, spinnerEdad.getValue(), direccion, LocalDate.now(), foto);
                 dataAlumnos.add(a);
-                loadingImg.setVisible(false);
                 Alert exito = new Alert(AlertType.INFORMATION, "El alumno ha sido dado de alta correctamente");
                 exito.setHeaderText(null);
                 exito.showAndWait();
@@ -113,7 +105,6 @@ public class DialogueAlumnoController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        loadingImg.setVisible(false);
         spinnerEdad.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, MAX_EDAD));
         imageChooser.setTitle("Elegir imagen");
         FileChooser.ExtensionFilter fileExtensions = 
@@ -125,7 +116,6 @@ public class DialogueAlumnoController implements Initializable {
             if (initialDir != null) imageChooser.setInitialDirectory(initialDir);
             File imgFile = imageChooser.showOpenDialog(primaryStage);
             if (imgFile != null) {
-                loadingImg.setVisible(true);
                 Alert preview = new Alert(AlertType.CONFIRMATION);
                 Image tmpFoto = new Image(imgFile.toURI().toString());
                 ImageView view = new ImageView(tmpFoto);
@@ -133,7 +123,6 @@ public class DialogueAlumnoController implements Initializable {
                 preview.setResizable(false); view.setPreserveRatio(true);
                 preview.setHeaderText("Previsualización");
                 preview.getDialogPane().setContent(view);
-                loadingImg.setVisible(false);
                 Optional<ButtonType> result = preview.showAndWait();
                 if (result.get() == ButtonType.OK) {
                     try { 
@@ -146,6 +135,7 @@ public class DialogueAlumnoController implements Initializable {
                         ex.printStackTrace(pw);
                         TextArea trace = new TextArea(sw.toString());
                         error.getDialogPane().setExpandableContent(trace);
+                        error.show();
                     }
                 }
             }
