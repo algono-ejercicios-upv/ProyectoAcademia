@@ -226,7 +226,7 @@ public class PrincipalController implements Initializable {
             }
         }
         dataCursos.remove(c);
-        if (isAvailable(c, listAlumnos.getSelectionModel().getSelectedItem())) dataCursosDisponibles.add(c);
+        dataCursosDisponibles.remove(c);
         acceso.salvar();
         exito.setContentText("El curso ha sido eliminado correctamente");
         exito.show();
@@ -294,6 +294,7 @@ public class PrincipalController implements Initializable {
             //Si el curso se encontraba seleccionado en la lista de cursos, añadimos al nuevo alumno
             Curso selC = listCursos.getSelectionModel().getSelectedItem();
             if (selC != null && c.getTitulodelcurso().equals(selC.getTitulodelcurso())) dataAlumnosDeCurso.add(a);
+            //Actualiza la lista de cursos disponibles (ya que para el alumno seleccionado podría haber cambiado)
             dataCursosDisponibles = getAvailableCursos();
             comboCursos.setItems(dataCursosDisponibles);
             exito.setContentText("El alumno ha sido matriculado correctamente");
@@ -311,6 +312,7 @@ public class PrincipalController implements Initializable {
                 dataMatriculas.remove(l.get(count));
                 acceso.salvar();
                 dataAlumnosDeCurso.remove(a);
+                //Actualiza la lista de cursos disponibles (ya que para el alumno seleccionado podría haber cambiado)
                 dataCursosDisponibles = getAvailableCursos();
                 comboCursos.setItems(dataCursosDisponibles);
                 exito.setContentText("El alumno ha sido desmatriculado correctamente");

@@ -139,7 +139,6 @@ public class DialogueCursoController implements Initializable {
     //Comprueba que las fechas sean validas y las devuelve(La fecha de inicio no es anterior a la actual, y la de inicio es anterior a la de fin)
     private LocalDate getFechaInicio() {
         LocalDate inicio = dateInicio.getValue();
-        LocalDate fin = dateFin.getValue();
         if (inicio.isBefore(LocalDate.now())) {
             String message = "Fecha de inicio inválida;"
                     + "La fecha de inicio no debe ser anterior a la fecha de hoy.\nIntroduzca una fecha válida y vuelva a intentarlo.";
@@ -198,19 +197,21 @@ public class DialogueCursoController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        //Hacemos un converter personalizado para que el texto tenga un formato como "02:03", en vez de "2:3".
         IntegerStringConverter timeConverter = new IntegerStringConverter() {
             @Override public String toString(Integer value) { return String.format("%02d", value); }
             @Override public Integer fromString(String string) { return super.fromString(string); }
         };
-        spinnerMaxAlumnos.setValueFactory(new IntegerSpinnerValueFactory(0, Integer.MAX_VALUE));
-        IntegerSpinnerValueFactory valueFactory = new IntegerSpinnerValueFactory(0, 23);
-        valueFactory.setConverter(timeConverter);
-        valueFactory.setWrapAround(true);
-        spinnerHours.setValueFactory(valueFactory);
-        valueFactory = new IntegerSpinnerValueFactory(0, 59);
-        valueFactory.setConverter(timeConverter);
-        valueFactory.setWrapAround(true);
-        spinnerMinutes.setValueFactory(valueFactory);
+        //No permitimos la creación de un curso con maxAlumnos = 0, ya que no tendría sentido
+        spinnerMaxAlumnos.setValueFactory(new IntegerSpinnerValueFactory(1, Integer.MAX_VALUE));
+        IntegerSpinnerValueFactory vF = new IntegerSpinnerValueFactory(0, 23);
+        vF.setConverter(timeConverter);
+        vF.setWrapAround(true);
+        spinnerHours.setValueFactory(vF);
+        vF = new IntegerSpinnerValueFactory(0, 59);
+        vF.setConverter(timeConverter);
+        vF.setWrapAround(true);
+        spinnerMinutes.setValueFactory(vF);
         dateInicio.setValue(LocalDate.now());
         dateFin.setValue(LocalDate.now());
     }
