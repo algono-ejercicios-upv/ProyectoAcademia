@@ -7,12 +7,12 @@ package proyecto.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -21,13 +21,16 @@ import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import modelo.Alumno;
 
 /**
@@ -53,17 +56,22 @@ public class DialogueAlumnoController implements Initializable {
     private TextField textImagePath;
     @FXML
     private Button buttonExaminar;
+    @FXML
+    private HBox loadingImg;
     
     public static final int MAX_EDAD = 200; //Valor en base a la esperanza de vida de una persona
     private Stage primaryStage;
     private ObservableList<Alumno> dataAlumnos;
+    //El tamaño máximo al que se representará la imagen en pantalla (pensado para la pantalla de previsualización)
+    private double imageHeight; private double imageWidth;
     private final FileChooser imageChooser = new FileChooser();
-    private final ObjectProperty<File> imageFile = new SimpleObjectProperty<>();
+    private Image foto;
     
-    public void init(Stage stage, ObservableList<Alumno> dA) {
+    public void init(Stage stage, ObservableList<Alumno> dA, double iHeight, double iWidth) {
         primaryStage = stage;
         primaryStage.setTitle("Nuevo Alumno");
         dataAlumnos = dA;
+        imageHeight = iHeight; imageWidth = iWidth;
     }
     
     @FXML
@@ -71,23 +79,11 @@ public class DialogueAlumnoController implements Initializable {
         String nombre = textNombre.getText();
         String DNI = textDNI.getText();
         String direccion = textDireccion.getText();
-        File imagePath = imageFile.getValue();
-        if (nombre.isEmpty()
-            || DNI.isEmpty()
-            || direccion.isEmpty())
-        {
+        if (nombre.isEmpty() || DNI.isEmpty() || direccion.isEmpty() || foto == null) {
             Alert alert = new Alert(AlertType.ERROR, "Alguno de los campos está vacío. Revíselo e inténtelo de nuevo.");
             alert.setHeaderText("Campo vacío");
             alert.show();
-        }
-        else if (imagePath == null || !imagePath.isFile()) {
-            Alert alert = new Alert(AlertType.ERROR, "La ruta del archivo de imagen es errónea o no está definida. Revíselo e inténtelo de nuevo.");
-            alert.setHeaderText("Ruta vacía o errónea");
-            alert.show();
-            textImagePath.requestFocus();
-            textImagePath.selectEnd();
-        }
-        else {
+        } else {
             int count = 0;
             while (count < dataAlumnos.size() && !dataAlumnos.get(count).getDni().equals(DNI)) count++;
             if (count < dataAlumnos.size()) {
@@ -95,9 +91,9 @@ public class DialogueAlumnoController implements Initializable {
                 alert.setHeaderText("El alumno ya existe");
                 alert.show();
             } else {
-                Image foto = new Image(imagePath.toURI().toString());
                 Alumno a = new Alumno(DNI, nombre, spinnerEdad.getValue(), direccion, LocalDate.now(), foto);
                 dataAlumnos.add(a);
+                loadingImg.setVisible(false);
                 Alert exito = new Alert(AlertType.INFORMATION, "El alumno ha sido dado de alta correctamente");
                 exito.setHeaderText(null);
                 exito.showAndWait();
@@ -117,34 +113,41 @@ public class DialogueAlumnoController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        loadingImg.setVisible(false);
         spinnerEdad.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, MAX_EDAD));
+        imageChooser.setTitle("Elegir imagen");
         FileChooser.ExtensionFilter fileExtensions = 
             new FileChooser.ExtensionFilter(
               "Archivos de imagen", "*.jpg", "*.jpeg", "*.png", "*.bmp");
         imageChooser.getExtensionFilters().add(fileExtensions);
         buttonExaminar.setOnAction((event) -> {
-            File initialDir = imageFile.getValue();
-            if (initialDir != null) { //Gracias al converter, si la ruta no existe será null, así que no hace falta comprobarlo
-                while (!initialDir.isDirectory()) initialDir = initialDir.getParentFile();
-                imageChooser.setInitialDirectory(initialDir);
-            }
-            File tmpFile = imageChooser.showOpenDialog(primaryStage);
-            //A pesar de que el converter ya comprueba si es null, lo comprobamos aquí para que, si esto ocurre, la ruta anterior no cambie.
-            if (tmpFile != null) imageFile.setValue(tmpFile);
-        });
-        //Permite tanto meter una ruta en el TextField (si no es válida el File será null), como elegir una con "Examinar" y que aparezca en el TextField
-        Bindings.bindBidirectional(textImagePath.textProperty(), imageFile, new StringConverter<File>() {
-            @Override
-            public String toString(File object) {
-                if (object != null) {
-                    try { return object.getCanonicalPath(); } catch (IOException ex) {}
+            File initialDir = new File(textImagePath.getText()).getParentFile();
+            if (initialDir != null) imageChooser.setInitialDirectory(initialDir);
+            File imgFile = imageChooser.showOpenDialog(primaryStage);
+            if (imgFile != null) {
+                loadingImg.setVisible(true);
+                Alert preview = new Alert(AlertType.CONFIRMATION);
+                Image tmpFoto = new Image(imgFile.toURI().toString());
+                ImageView view = new ImageView(tmpFoto);
+                view.setFitHeight(imageHeight); view.setFitWidth(imageWidth);
+                preview.setResizable(false); view.setPreserveRatio(true);
+                preview.setHeaderText("Previsualización");
+                preview.getDialogPane().setContent(view);
+                loadingImg.setVisible(false);
+                Optional<ButtonType> result = preview.showAndWait();
+                if (result.get() == ButtonType.OK) {
+                    try { 
+                        String imgPath = imgFile.getCanonicalPath();
+                        textImagePath.setText(imgPath);
+                        foto = tmpFoto;
+                    } catch (IOException ex) {
+                        Alert error = new Alert(AlertType.ERROR, "Ha habido un error al cargar la imagen.");
+                        StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw);
+                        ex.printStackTrace(pw);
+                        TextArea trace = new TextArea(sw.toString());
+                        error.getDialogPane().setExpandableContent(trace);
+                    }
                 }
-                return ""; //Tanto si el objeto resultó ser "null" como si saltó la IOException, devuelve una String vacía
-            }
-            @Override
-            public File fromString(String string) {
-                File file = new File(string);
-                return file.exists() ? file : null;
             }
         });
     }        

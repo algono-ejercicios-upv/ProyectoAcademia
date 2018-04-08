@@ -82,7 +82,9 @@ public class PrincipalController implements Initializable {
     private final AccesoaBD acceso = new AccesoaBD();
     //Formato para mostrar las fechas de una forma más cómoda para un usuario hispanohablante
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/LL/yyyy");
+    //Dialogo de exito (mostrado en varias pantallas, así que solo vamos cambiando el texto mostrado).
     private final Alert exito = new Alert(AlertType.INFORMATION);
+    //Listas
     private final ObservableList<Alumno> dataAlumnos = FXCollections.observableList(acceso.getAlumnos());
     private final ObservableList<Curso> dataCursos = FXCollections.observableList(acceso.getCursos());
     private final ArrayList<Matricula> dataMatriculas = (ArrayList<Matricula>) acceso.getMatriculas();
@@ -170,7 +172,7 @@ public class PrincipalController implements Initializable {
             FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/proyecto/view/DialogueAlumnoView.fxml"));
             Parent root = (Parent) myLoader.load();
             DialogueAlumnoController alumnoCreator = myLoader.<DialogueAlumnoController>getController();
-            alumnoCreator.init(stage, dataAlumnos);
+            alumnoCreator.init(stage, dataAlumnos, image.getFitHeight(), image.getFitWidth());
             Scene scene = new Scene(root);
 
             stage.setScene(scene);
