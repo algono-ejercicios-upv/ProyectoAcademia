@@ -59,7 +59,7 @@
                <GridPane.margin>
                   <Insets />
                </GridPane.margin></TextField>
-            <Spinner fx:id="spinnerEdad" prefWidth="70.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
+            <Spinner fx:id="spinnerEdad" prefHeight="31.0" prefWidth="85.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
             <TextField fx:id="textDireccion" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <HBox alignment="CENTER" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <children>
