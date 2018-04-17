@@ -65,13 +65,13 @@
             <DatePicker fx:id="dateFin" editable="false" layoutX="190.0" layoutY="93.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" />
             <HBox alignment="CENTER_LEFT" spacing="5.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="5">
                <children>
-                  <Spinner fx:id="spinnerHours" nodeOrientation="RIGHT_TO_LEFT" prefHeight="31.0" prefWidth="82.0" />
+                  <Spinner fx:id="spinnerHours" nodeOrientation="RIGHT_TO_LEFT" prefWidth="82.0" />
                   <Label focusTraversable="false" text=":">
                      <font>
                         <Font size="16.0" />
                      </font>
                   </Label>
-                  <Spinner fx:id="spinnerMinutes" layoutX="10.0" layoutY="10.0" nodeOrientation="LEFT_TO_RIGHT" prefHeight="31.0" prefWidth="84.0" />
+                  <Spinner fx:id="spinnerMinutes" layoutX="10.0" layoutY="10.0" nodeOrientation="LEFT_TO_RIGHT" prefWidth="82.0" />
                </children>
             </HBox>
             <ToolBar fx:id="toolBarDias" focusTraversable="false" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
