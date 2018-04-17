@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="325.0" prefWidth="452.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.controller.DialogueAlumnoController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.controller.DialogueAlumnoController">
    <bottom>
       <HBox alignment="BOTTOM_CENTER" prefHeight="49.0" prefWidth="452.0" spacing="30.0" BorderPane.alignment="BOTTOM_CENTER">
          <children>
@@ -27,6 +27,9 @@
          <padding>
             <Insets bottom="10.0" />
          </padding>
+         <BorderPane.margin>
+            <Insets top="20.0" />
+         </BorderPane.margin>
       </HBox>
    </bottom>
    <center>
@@ -58,7 +61,7 @@
                </GridPane.margin></TextField>
             <Spinner fx:id="spinnerEdad" prefWidth="70.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="2" />
             <TextField fx:id="textDireccion" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <HBox alignment="CENTER" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <children>
                   <TextField fx:id="textImagePath" editable="false" HBox.hgrow="ALWAYS" />
                   <Button fx:id="buttonExaminar" mnemonicParsing="false" text="Examinar" />
