@@ -265,7 +265,7 @@ public class PrincipalController implements Initializable {
                         listCursos.getSelectionModel().selectedIndexProperty()));
         
         //Cada vez que se seleccione un alumno, mostramos sus datos
-        listAlumnos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        listAlumnos.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             image.setImage(newValue.getFoto());
             labelNombre.setText("Nombre: " + newValue.getNombre());
             labelDNI.setText("DNI: " + newValue.getDni());
@@ -277,7 +277,7 @@ public class PrincipalController implements Initializable {
         });
         
         //Mostramos los alumnos matriculados en un curso al seleccionarlo
-        listCursos.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        listCursos.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
             List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(newValue);
             if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
             else {
@@ -287,7 +287,7 @@ public class PrincipalController implements Initializable {
         });
         
         //Codigo para matricular a un alumno en un curso
-        buttonMatricular.setOnAction((event) -> {
+        buttonMatricular.setOnAction((evt) -> {
             Alumno a = listAlumnos.getSelectionModel().getSelectedItem();
             Curso c = comboCursos.getSelectionModel().getSelectedItem();
             dataMatriculas.add(new Matricula(LocalDate.now(), c, a));
@@ -304,7 +304,7 @@ public class PrincipalController implements Initializable {
         });
         
         //Codigo para desmatricular a un alumno de un curso
-        buttonDesmatricular.setOnAction((event) -> {
+        buttonDesmatricular.setOnAction((evt) -> {
             Alumno a = listAlumnosDeCurso.getSelectionModel().getSelectedItem();
             Curso c = listCursos.getSelectionModel().getSelectedItem();
             List<Matricula> l = acceso.getMatriculasDeCurso(c); //Obtenemos las matriculas del curso
@@ -323,9 +323,9 @@ public class PrincipalController implements Initializable {
                 new Alert(AlertType.ERROR, "Ha habido un error inesperado. Inténtelo de nuevo más tarde.").show();
             }
         });
-        buttonNewCurso.setOnAction(event -> gotoDialogueCursos(null));
-        buttonViewCurso.setOnAction(event -> gotoDialogueCursos(listCursos.getSelectionModel().getSelectedItem()));
-        buttonBaja.setOnAction(event -> remove(listAlumnos.getSelectionModel().getSelectedItem()));
-        buttonRemoveCurso.setOnAction(event -> remove(listCursos.getSelectionModel().getSelectedItem()));
+        buttonNewCurso.setOnAction(evt -> gotoDialogueCursos(null));
+        buttonViewCurso.setOnAction(evt -> gotoDialogueCursos(listCursos.getSelectionModel().getSelectedItem()));
+        buttonBaja.setOnAction(evt -> remove(listAlumnos.getSelectionModel().getSelectedItem()));
+        buttonRemoveCurso.setOnAction(evt -> remove(listCursos.getSelectionModel().getSelectedItem()));
     }
 }

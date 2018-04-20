@@ -70,6 +70,7 @@ public class DialogueCursoController implements Initializable {
     public void init(Stage stage, ObservableList<Curso> dC, Curso curso) {
         primaryStage = stage;
         dataCursos = dC;
+        //Si le has pasado algún curso para visualizar, muestra sus datos.
         if (curso == null) {
             stage.setTitle("Nuevo Curso");
         } else {
