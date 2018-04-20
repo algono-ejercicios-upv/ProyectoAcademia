@@ -7,8 +7,6 @@ package proyecto.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -23,8 +21,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.SpinnerValueFactory.IntegerSpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -49,8 +46,6 @@ public class DialogueAlumnoController implements Initializable {
     private TextField textDireccion;
     @FXML
     private TextField textImagePath;
-    @FXML
-    private Button buttonExaminar;
     
     public static final int MAX_EDAD = 200; //Valor en base a la esperanza de vida de una persona
     private Stage primaryStage;
@@ -65,6 +60,32 @@ public class DialogueAlumnoController implements Initializable {
         primaryStage.setTitle("Nuevo Alumno");
         dataAlumnos = dA;
         imageHeight = iHeight; imageWidth = iWidth;
+    }
+    
+    @FXML
+    private void browseImage(ActionEvent event) {
+        File initialDir = new File(textImagePath.getText()).getParentFile();
+        if (initialDir != null) imageChooser.setInitialDirectory(initialDir);
+        File imgFile = imageChooser.showOpenDialog(primaryStage);
+        if (imgFile != null) {
+            Alert preview = new Alert(AlertType.CONFIRMATION);
+            Image tmpFoto = new Image(imgFile.toURI().toString());
+            ImageView view = new ImageView(tmpFoto);
+            view.setFitHeight(imageHeight); view.setFitWidth(imageWidth);
+            preview.setResizable(false); view.setPreserveRatio(true);
+            preview.setHeaderText("Previsualización");
+            preview.getDialogPane().setContent(view);
+            Optional<ButtonType> result = preview.showAndWait();
+            if (result.get() == ButtonType.OK) {
+                try { 
+                    String imgPath = imgFile.getCanonicalPath();
+                    textImagePath.setText(imgPath);
+                    foto = tmpFoto;
+                } catch (IOException ex) {
+                    new Alert(AlertType.ERROR, "Ha habido un error al cargar la imagen.").show();
+                }
+            }
+        }
     }
     
     @FXML
@@ -105,40 +126,11 @@ public class DialogueAlumnoController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        spinnerEdad.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, MAX_EDAD));
+        spinnerEdad.setValueFactory(new IntegerSpinnerValueFactory(0, MAX_EDAD));
         imageChooser.setTitle("Elegir imagen");
         FileChooser.ExtensionFilter fileExtensions = 
             new FileChooser.ExtensionFilter(
               "Archivos de imagen", "*.jpg", "*.jpeg", "*.png", "*.bmp");
         imageChooser.getExtensionFilters().add(fileExtensions);
-        buttonExaminar.setOnAction((event) -> {
-            File initialDir = new File(textImagePath.getText()).getParentFile();
-            if (initialDir != null) imageChooser.setInitialDirectory(initialDir);
-            File imgFile = imageChooser.showOpenDialog(primaryStage);
-            if (imgFile != null) {
-                Alert preview = new Alert(AlertType.CONFIRMATION);
-                Image tmpFoto = new Image(imgFile.toURI().toString());
-                ImageView view = new ImageView(tmpFoto);
-                view.setFitHeight(imageHeight); view.setFitWidth(imageWidth);
-                preview.setResizable(false); view.setPreserveRatio(true);
-                preview.setHeaderText("Previsualización");
-                preview.getDialogPane().setContent(view);
-                Optional<ButtonType> result = preview.showAndWait();
-                if (result.get() == ButtonType.OK) {
-                    try { 
-                        String imgPath = imgFile.getCanonicalPath();
-                        textImagePath.setText(imgPath);
-                        foto = tmpFoto;
-                    } catch (IOException ex) {
-                        Alert error = new Alert(AlertType.ERROR, "Ha habido un error al cargar la imagen.");
-                        StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw);
-                        ex.printStackTrace(pw);
-                        TextArea trace = new TextArea(sw.toString());
-                        error.getDialogPane().setExpandableContent(trace);
-                        error.show();
-                    }
-                }
-            }
-        });
     }        
 }
