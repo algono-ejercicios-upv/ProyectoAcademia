@@ -200,10 +200,8 @@ public class PrincipalController implements Initializable {
             expList.setItems(cursosDelAlumno);
             aviso.getDialogPane().setExpandableContent(expList);
             Optional<ButtonType> result = aviso.showAndWait();
-            if (result.get() != ButtonType.OK) return;
-            for (Matricula m : matDelAlumno) {
-                dataMatriculas.remove(m);
-            }
+            if (result.isPresent() && result.get() != ButtonType.OK) return;
+            dataMatriculas.removeAll(matDelAlumno);
         }
         dataAlumnos.remove(a);
         dataAlumnosDeCurso.remove(a); //Si el alumno estaba en la lista, lo borra. Si no estaba, no pasa nada (ver metodo remove()).
@@ -221,7 +219,7 @@ public class PrincipalController implements Initializable {
             expList.setItems(dataAlumnosDeCurso);
             aviso.getDialogPane().setExpandableContent(expList);
             Optional<ButtonType> result = aviso.showAndWait();
-            if (result.get() != ButtonType.OK) return;
+            if (result.isPresent() && result.get() != ButtonType.OK) return;
             List<Matricula> matriculasDeCurso = acceso.getMatriculasDeCurso(c);
             for (Matricula m : matriculasDeCurso) {
                 dataMatriculas.remove(m);

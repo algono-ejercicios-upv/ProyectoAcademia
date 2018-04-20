@@ -75,7 +75,7 @@ public class DialogueAlumnoController implements Initializable {
             preview.setHeaderText("Previsualización");
             preview.getDialogPane().setContent(view);
             Optional<ButtonType> result = preview.showAndWait();
-            if (result.get() == ButtonType.OK) {
+            if (result.isPresent() && result.get() == ButtonType.OK) {
                 try { 
                     String imgPath = imgFile.getCanonicalPath();
                     textImagePath.setText(imgPath);
