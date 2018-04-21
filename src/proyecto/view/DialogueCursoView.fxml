@@ -20,7 +20,7 @@
       <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="452.0" spacing="30.0" BorderPane.alignment="TOP_LEFT">
          <children>
             <Button fx:id="buttonCreate" defaultButton="true" mnemonicParsing="false" onAction="#createCurso" prefHeight="25.0" prefWidth="64.0" text="Crear" />
-            <Button fx:id="buttonCerrar" mnemonicParsing="false" onAction="#closeDialogue" prefHeight="25.0" prefWidth="64.0" text="Cerrar" />
+            <Button fx:id="buttonCerrar" cancelButton="true" mnemonicParsing="false" onAction="#closeDialogue" prefHeight="25.0" prefWidth="64.0" text="Cerrar" />
          </children>
          <padding>
             <Insets bottom="10.0" />
@@ -74,7 +74,7 @@
                   <Spinner fx:id="spinnerMinutes" layoutX="10.0" layoutY="10.0" nodeOrientation="LEFT_TO_RIGHT" prefWidth="82.0" />
                </children>
             </HBox>
-            <ToolBar fx:id="toolBarDias" focusTraversable="false" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+            <ToolBar fx:id="toolBarDias" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="6" GridPane.valignment="CENTER">
                <items>
                   <ToggleButton focusTraversable="false" mnemonicParsing="false" text="L" />
                   <ToggleButton focusTraversable="false" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="M" />
