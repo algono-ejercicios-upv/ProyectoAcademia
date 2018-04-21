@@ -13,13 +13,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -147,12 +145,9 @@ public class PrincipalController implements Initializable {
         }
         return true; //Si todo se ha cumplido correctamente, esta disponible
     }
-    private ObservableList<Curso> getAvailableCursos() {
-        return getAvailableCursos(listAlumnos.getSelectionModel().getSelectedItem());
-    }
     private ObservableList<Curso> getAvailableCursos(Alumno a) {
         List<Curso> res = new ArrayList<>(); 
-        if (dataCursos != null) {
+        if (dataCursos != null && a != null) {
             for (Curso c : dataCursos) {
                 if (isAvailable(c, a)) { res.add(c); }
             }
@@ -267,7 +262,7 @@ public class PrincipalController implements Initializable {
         // Hacemos que cada vez que cambies de pestaña, las listas se actualicen
         tabAlumnos.setOnSelectionChanged(evt -> {
             if (tabAlumnos.isSelected()) {
-                dataCursosDisponibles = getAvailableCursos();
+                dataCursosDisponibles = getAvailableCursos(listAlumnos.getSelectionModel().getSelectedItem());
                 comboCursos.setItems(dataCursosDisponibles);
             }
         });
@@ -331,7 +326,7 @@ public class PrincipalController implements Initializable {
             Curso selC = listCursos.getSelectionModel().getSelectedItem();
             if (selC != null && c.getTitulodelcurso().equals(selC.getTitulodelcurso())) dataAlumnosDeCurso.add(a);
             //Actualiza la lista de cursos disponibles (ya que para el alumno seleccionado podría haber cambiado)
-            dataCursosDisponibles = getAvailableCursos();
+            dataCursosDisponibles = getAvailableCursos(a);
             comboCursos.setItems(dataCursosDisponibles);
             exito.setContentText("El alumno ha sido matriculado correctamente");
             exito.show();
@@ -341,16 +336,14 @@ public class PrincipalController implements Initializable {
         buttonDesmatricular.setOnAction((evt) -> {
             Alumno a = listAlumnosDeCurso.getSelectionModel().getSelectedItem();
             Curso c = listCursos.getSelectionModel().getSelectedItem();
-            List<Matricula> l = acceso.getMatriculasDeCurso(c); //Obtenemos las matriculas del curso
             int count = 0; //Buscamos el indice en la lista de la matricula
-            while (count < l.size() && !l.get(count).getAlumno().getDni().equals(a.getDni())) count++;
-            if (count < l.size()) {
-                dataMatriculas.remove(l.get(count));
+            while (count < dataMatriculas.size() 
+                    && !dataMatriculas.get(count).getAlumno().getDni().equals(a.getDni())
+                    && !dataMatriculas.get(count).getCurso().getTitulodelcurso().equals(c.getTitulodelcurso())) { count++; }
+            if (count < dataMatriculas.size()) {
+                dataMatriculas.remove(count);
                 acceso.salvar();
                 dataAlumnosDeCurso.remove(a);
-                //Actualiza la lista de cursos disponibles (ya que para el alumno seleccionado podría haber cambiado)
-                dataCursosDisponibles = getAvailableCursos();
-                comboCursos.setItems(dataCursosDisponibles);
                 exito.setContentText("El alumno ha sido desmatriculado correctamente");
                 exito.show();
             } else {
