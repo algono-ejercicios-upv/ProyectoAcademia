@@ -13,11 +13,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -32,6 +34,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
 import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -44,6 +47,10 @@ import javafx.stage.Stage;
  * @author aleja
  */
 public class PrincipalController implements Initializable {
+    @FXML
+    private Tab tabAlumnos;
+    @FXML
+    private Tab tabCursos;
     @FXML
     private ListView<Alumno> listAlumnos;
     @FXML
@@ -88,8 +95,8 @@ public class PrincipalController implements Initializable {
     private final ObservableList<Alumno> dataAlumnos = FXCollections.observableList(acceso.getAlumnos());
     private final ObservableList<Curso> dataCursos = FXCollections.observableList(acceso.getCursos());
     private final ArrayList<Matricula> dataMatriculas = (ArrayList<Matricula>) acceso.getMatriculas();
-    private ObservableList<Alumno> dataAlumnosDeCurso = FXCollections.observableList(new ArrayList<>());
-    private ObservableList<Curso> dataCursosDisponibles;
+    private ObservableList<Alumno> dataAlumnosDeCurso = FXCollections.observableArrayList();
+    private ObservableList<Curso> dataCursosDisponibles = FXCollections.observableArrayList();
     
     //ListCells para Alumno y Curso
     class AlumnoListCell extends ListCell<Alumno> {
@@ -145,10 +152,24 @@ public class PrincipalController implements Initializable {
     }
     private ObservableList<Curso> getAvailableCursos(Alumno a) {
         List<Curso> res = new ArrayList<>(); 
-        for (Curso c : dataCursos) {
-            if (isAvailable(c, a)) { res.add(c); }
+        if (dataCursos != null) {
+            for (Curso c : dataCursos) {
+                if (isAvailable(c, a)) { res.add(c); }
+            }
         }
         return FXCollections.observableList(res);
+    }
+    
+    private void setAlumnosDeCurso(Curso newValue) {
+        if (newValue == null) { dataAlumnosDeCurso.clear(); }
+            else {
+                List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(newValue);
+                if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
+                else {
+                    dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
+                    listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
+                }
+            }
     }
     
     private void gotoDialogueCursos(Curso actCurso) {
@@ -204,7 +225,6 @@ public class PrincipalController implements Initializable {
             dataMatriculas.removeAll(matDelAlumno);
         }
         dataAlumnos.remove(a);
-        dataAlumnosDeCurso.remove(a); //Si el alumno estaba en la lista, lo borra. Si no estaba, no pasa nada (ver metodo remove()).
         acceso.salvar();
         exito.setContentText("El alumno ha sido dado de baja correctamente");
         exito.show();
@@ -226,7 +246,6 @@ public class PrincipalController implements Initializable {
             }
         }
         dataCursos.remove(c);
-        dataCursosDisponibles.remove(c);
         acceso.salvar();
         exito.setContentText("El curso ha sido eliminado correctamente");
         exito.show();
@@ -244,7 +263,19 @@ public class PrincipalController implements Initializable {
         //Llenamos las listas con sus respectivos datos
         listAlumnos.setItems(dataAlumnos);
         listCursos.setItems(dataCursos);
-        
+        listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
+        // Hacemos que cada vez que cambies de pestaña, las listas se actualicen
+        tabAlumnos.setOnSelectionChanged(evt -> {
+            if (tabAlumnos.isSelected()) {
+                dataCursosDisponibles = getAvailableCursos();
+                comboCursos.setItems(dataCursosDisponibles);
+            }
+        });
+        tabCursos.setOnSelectionChanged(evt -> {
+            if (tabCursos.isSelected()) {
+                setAlumnosDeCurso(listCursos.getSelectionModel().getSelectedItem());
+            }
+        });
         // Hacemos que aquellos botones que dependan de que haya un elemento seleccionado en una lista solo esten disponibles cuando lo haya
         buttonMatricular.disableProperty().bind(
                 Bindings.equal(-1,
@@ -264,24 +295,29 @@ public class PrincipalController implements Initializable {
         
         //Cada vez que se seleccione un alumno, mostramos sus datos
         listAlumnos.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
-            image.setImage(newValue.getFoto());
-            labelNombre.setText("Nombre: " + newValue.getNombre());
-            labelDNI.setText("DNI: " + newValue.getDni());
-            labelEdad.setText("Edad: " + newValue.getEdad());
-            labelDireccion.setText("Dirección: " + newValue.getDireccion());
-            labelFechaAlta.setText("Fecha de alta: " + newValue.getFechadealta().format(formatter));
-            dataCursosDisponibles = getAvailableCursos(newValue);
-            comboCursos.setItems(dataCursosDisponibles);
+            if (newValue == null) {
+                image.setImage(null);
+                labelNombre.setText("");
+                labelDNI.setText("");
+                labelEdad.setText("");
+                labelDireccion.setText("");
+                labelFechaAlta.setText("");
+                dataCursosDisponibles.clear();
+            } else {
+                image.setImage(newValue.getFoto());
+                labelNombre.setText("Nombre: " + newValue.getNombre());
+                labelDNI.setText("DNI: " + newValue.getDni());
+                labelEdad.setText("Edad: " + newValue.getEdad());
+                labelDireccion.setText("Dirección: " + newValue.getDireccion());
+                labelFechaAlta.setText("Fecha de alta: " + newValue.getFechadealta().format(formatter));
+                dataCursosDisponibles = getAvailableCursos(newValue);
+                comboCursos.setItems(dataCursosDisponibles);
+            }
         });
         
         //Mostramos los alumnos matriculados en un curso al seleccionarlo
         listCursos.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) -> {
-            List<Alumno> alumnosDeCurso = acceso.getAlumnosDeCurso(newValue);
-            if (alumnosDeCurso == null) { dataAlumnosDeCurso.clear(); }
-            else {
-                dataAlumnosDeCurso = FXCollections.observableList(alumnosDeCurso);
-                listAlumnosDeCurso.setItems(dataAlumnosDeCurso);
-            }
+            setAlumnosDeCurso(newValue);
         });
         
         //Codigo para matricular a un alumno en un curso

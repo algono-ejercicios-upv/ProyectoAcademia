@@ -5,6 +5,7 @@
  */
 package proyecto.controller;
 
+import accesoaBD.AccesoaBD;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -89,6 +90,7 @@ public class DialogueAlumnoController implements Initializable {
     
     @FXML
     private void createAlumno(ActionEvent event) {
+        AccesoaBD acceso = new AccesoaBD();
         String nombre = textNombre.getText();
         String DNI = textDNI.getText();
         String direccion = textDireccion.getText();
@@ -106,6 +108,7 @@ public class DialogueAlumnoController implements Initializable {
             } else {
                 Alumno a = new Alumno(DNI, nombre, spinnerEdad.getValue(), direccion, LocalDate.now(), foto);
                 dataAlumnos.add(a);
+                acceso.salvar();
                 Alert exito = new Alert(AlertType.INFORMATION, "El alumno ha sido dado de alta correctamente");
                 exito.setHeaderText(null);
                 exito.showAndWait();
