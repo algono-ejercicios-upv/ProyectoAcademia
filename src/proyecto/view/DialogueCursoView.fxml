@@ -15,16 +15,16 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="492.0" prefWidth="543.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.controller.DialogueCursoController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="456.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.controller.DialogueCursoController">
    <bottom>
-      <HBox alignment="BOTTOM_CENTER" prefHeight="100.0" prefWidth="452.0" spacing="30.0" BorderPane.alignment="TOP_LEFT">
+      <HBox alignment="BOTTOM_CENTER" spacing="30.0" BorderPane.alignment="TOP_LEFT">
          <children>
-            <Button fx:id="buttonCreate" defaultButton="true" mnemonicParsing="false" onAction="#createCurso" prefHeight="25.0" prefWidth="64.0" text="Crear" />
-            <Button fx:id="buttonCerrar" cancelButton="true" mnemonicParsing="false" onAction="#closeDialogue" prefHeight="25.0" prefWidth="64.0" text="Cerrar" />
+            <Button fx:id="buttonCreate" defaultButton="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#createCurso" prefHeight="25.0" prefWidth="64.0" text="Crear" />
+            <Button fx:id="buttonCerrar" cancelButton="true" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#closeDialogue" prefHeight="25.0" prefWidth="64.0" text="Cerrar" />
          </children>
-         <padding>
+         <BorderPane.margin>
             <Insets bottom="10.0" />
-         </padding>
+         </BorderPane.margin>
       </HBox>
    </bottom>
    <center>
@@ -76,13 +76,13 @@
             </HBox>
             <ToolBar fx:id="toolBarDias" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="6" GridPane.valignment="CENTER">
                <items>
-                  <ToggleButton focusTraversable="false" mnemonicParsing="false" text="L" />
-                  <ToggleButton focusTraversable="false" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="M" />
-                  <ToggleButton focusTraversable="false" layoutX="36.0" layoutY="10.0" mnemonicParsing="false" text="X" />
-                  <ToggleButton focusTraversable="false" layoutX="62.0" layoutY="10.0" mnemonicParsing="false" text="J" />
-                  <ToggleButton focusTraversable="false" layoutX="88.0" layoutY="10.0" mnemonicParsing="false" text="V" />
-                  <ToggleButton focusTraversable="false" layoutX="114.0" layoutY="10.0" mnemonicParsing="false" text="S" />
-                  <ToggleButton focusTraversable="false" layoutX="140.0" layoutY="10.0" mnemonicParsing="false" text="D" />
+                  <ToggleButton focusTraversable="false" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="L" />
+                  <ToggleButton focusTraversable="false" layoutX="10.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="M" />
+                  <ToggleButton focusTraversable="false" layoutX="36.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="X" />
+                  <ToggleButton focusTraversable="false" layoutX="62.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="J" />
+                  <ToggleButton focusTraversable="false" layoutX="88.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="V" />
+                  <ToggleButton focusTraversable="false" layoutX="114.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="S" />
+                  <ToggleButton focusTraversable="false" layoutX="140.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="D" />
                </items>
             </ToolBar>
             <TextField fx:id="textAula" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="7">
@@ -91,7 +91,7 @@
                </GridPane.margin></TextField>
          </children>
          <BorderPane.margin>
-            <Insets left="40.0" right="40.0" top="60.0" />
+            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
          </BorderPane.margin>
       </GridPane>
    </center>

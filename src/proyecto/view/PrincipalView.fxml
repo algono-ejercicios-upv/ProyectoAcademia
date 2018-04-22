@@ -8,7 +8,6 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -19,108 +18,100 @@
    <tabs>
       <Tab fx:id="tabAlumnos" closable="false" text="Alumnos">
          <content>
-            <AnchorPane>
+            <GridPane focusTraversable="true" hgap="30.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity">
+               <columnConstraints>
+                  <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" minWidth="10.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
                <children>
-                  <GridPane focusTraversable="true" hgap="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <columnConstraints>
-                        <ColumnConstraints fillWidth="false" hgrow="SOMETIMES" minWidth="10.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-                     </columnConstraints>
-                     <rowConstraints>
-                        <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-                     </rowConstraints>
+                  <VBox alignment="CENTER" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
                      <children>
-                        <VBox alignment="CENTER" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" GridPane.halignment="RIGHT" GridPane.valignment="CENTER">
+                        <VBox focusTraversable="true" spacing="10.0" VBox.vgrow="ALWAYS">
                            <children>
-                              <VBox focusTraversable="true" spacing="10.0" VBox.vgrow="ALWAYS">
+                              <Label text="Alumnos de la academia:" />
+                              <ListView fx:id="listAlumnos" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="327.0" prefWidth="198.0" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                        <HBox alignment="CENTER" focusTraversable="true" spacing="20.0">
+                           <children>
+                              <Button fx:id="buttonAlta" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#gotoDialogueAlumnos" text="Nuevo" />
+                              <Button fx:id="buttonBaja" layoutX="10.0" layoutY="10.0" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Eliminar" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="327.0" prefWidth="231.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                     <children>
+                        <ImageView fx:id="image" fitHeight="193.0" fitWidth="193.0" pickOnBounds="true" preserveRatio="true">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </ImageView>
+                        <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0">
+                           <children>
+                              <Label fx:id="labelNombre" />
+                              <Label fx:id="labelDNI" />
+                              <Label fx:id="labelEdad" />
+                              <Label fx:id="labelDireccion" />
+                              <Label fx:id="labelFechaAlta" />
+                           </children>
+                        </VBox>
+                        <VBox focusTraversable="true">
+                           <children>
+                              <Label text="Cursos disponibles:" />
+                              <HBox focusTraversable="true" spacing="10.0">
                                  <children>
-                                    <Label text="Alumnos de la academia:" />
-                                    <ListView fx:id="listAlumnos" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="327.0" prefWidth="198.0" VBox.vgrow="ALWAYS" />
-                                 </children>
-                              </VBox>
-                              <HBox alignment="CENTER" focusTraversable="true" spacing="20.0">
-                                 <children>
-                                    <Button fx:id="buttonAlta" mnemonicParsing="false" onAction="#gotoDialogueAlumnos" text="Nuevo" />
-                                    <Button fx:id="buttonBaja" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Eliminar" />
+                                    <ComboBox fx:id="comboCursos" prefWidth="150.0" />
+                                    <Button fx:id="buttonMatricular" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Matricular" />
                                  </children>
                               </HBox>
                            </children>
                         </VBox>
-                        <VBox focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="327.0" prefWidth="231.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                           <children>
-                              <ImageView fx:id="image" fitHeight="193.0" fitWidth="193.0" pickOnBounds="true" preserveRatio="true">
-                                 <VBox.margin>
-                                    <Insets />
-                                 </VBox.margin>
-                              </ImageView>
-                              <VBox alignment="CENTER_LEFT" prefHeight="200.0" prefWidth="100.0">
-                                 <children>
-                                    <Label fx:id="labelNombre" />
-                                    <Label fx:id="labelDNI" />
-                                    <Label fx:id="labelEdad" />
-                                    <Label fx:id="labelDireccion" />
-                                    <Label fx:id="labelFechaAlta" />
-                                 </children>
-                              </VBox>
-                              <VBox focusTraversable="true">
-                                 <children>
-                                    <Label text="Cursos disponibles:" />
-                                    <HBox focusTraversable="true" spacing="10.0">
-                                       <children>
-                                          <ComboBox fx:id="comboCursos" prefWidth="150.0" />
-                                          <Button fx:id="buttonMatricular" mnemonicParsing="false" text="Matricular" />
-                                       </children>
-                                    </HBox>
-                                 </children>
-                              </VBox>
-                           </children>
-                        </VBox>
                      </children>
-                     <padding>
-                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                     </padding>
-                  </GridPane>
+                  </VBox>
                </children>
-            </AnchorPane>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </GridPane>
          </content>
       </Tab>
       <Tab fx:id="tabCursos" closable="false" text="Cursos">
          <content>
-            <AnchorPane>
+            <HBox alignment="CENTER" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="50.0">
                <children>
-                  <HBox alignment="CENTER" focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="400.0" prefWidth="600.0" spacing="50.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
                      <children>
-                        <VBox focusTraversable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
+                        <Label text="Listado de cursos:" />
+                        <ListView fx:id="listCursos" prefHeight="278.0" prefWidth="198.0" VBox.vgrow="ALWAYS" />
+                        <HBox alignment="CENTER" focusTraversable="true" spacing="20.0">
                            <children>
-                              <Label text="Listado de cursos:" />
-                              <ListView fx:id="listCursos" prefHeight="278.0" prefWidth="198.0" VBox.vgrow="ALWAYS" />
-                              <HBox alignment="CENTER" focusTraversable="true" spacing="20.0">
-                                 <children>
-                                    <Button fx:id="buttonNewCurso" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Nuevo" />
-                                    <Button fx:id="buttonViewCurso" mnemonicParsing="false" text="Ver" />
-                                    <Button fx:id="buttonRemoveCurso" mnemonicParsing="false" text="Eliminar" />
-                                 </children>
-                              </HBox>
+                              <Button fx:id="buttonNewCurso" alignment="CENTER_RIGHT" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Nuevo" />
+                              <Button fx:id="buttonViewCurso" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Ver" />
+                              <Button fx:id="buttonRemoveCurso" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Eliminar" />
                            </children>
-                        </VBox>
-                        <VBox focusTraversable="true" layoutX="216.0" layoutY="30.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox focusTraversable="true" layoutX="216.0" layoutY="30.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0">
+                     <children>
+                        <Label text="Alumnos matriculados:" />
+                        <ListView fx:id="listAlumnosDeCurso" prefHeight="278.0" prefWidth="198.0" VBox.vgrow="ALWAYS" />
+                        <VBox alignment="CENTER" focusTraversable="true" spacing="5.0">
                            <children>
-                              <Label text="Alumnos matriculados:" />
-                              <ListView fx:id="listAlumnosDeCurso" prefHeight="278.0" prefWidth="198.0" VBox.vgrow="ALWAYS" />
-                              <VBox alignment="CENTER" focusTraversable="true" spacing="5.0">
-                                 <children>
-                                    <Button fx:id="buttonDesmatricular" alignment="CENTER_RIGHT" mnemonicParsing="false" text="Desmatricular" />
-                                 </children>
-                              </VBox>
+                              <Button fx:id="buttonDesmatricular" alignment="CENTER_RIGHT" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" text="Desmatricular" />
                            </children>
                         </VBox>
                      </children>
-                     <padding>
-                        <Insets bottom="20.0" left="30.0" right="20.0" top="20.0" />
-                     </padding>
-                  </HBox>
+                  </VBox>
                </children>
-            </AnchorPane>
+               <padding>
+                  <Insets bottom="20.0" left="30.0" right="20.0" top="20.0" />
+               </padding>
+            </HBox>
          </content>
       </Tab>
    </tabs>
