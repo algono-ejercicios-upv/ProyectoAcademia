@@ -171,7 +171,7 @@ public class DialogueCursoController implements Initializable {
                     getFechaFin(), //Fecha de fin
                     LocalTime.of(spinnerHours.getValue(), spinnerMinutes.getValue()), //Hora
                     getDias(), //Dias de la SEMANA que se imparte
-                    getText(textAula)); //Aula
+                    "Aula " + getText(textAula)); //Aula
             dataCursos.add(curso);
             acceso.salvar();
             Alert exito = new Alert(AlertType.INFORMATION, "El curso ha sido creado correctamente");

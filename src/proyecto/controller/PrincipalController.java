@@ -322,9 +322,6 @@ public class PrincipalController implements Initializable {
             dataMatriculas.add(new Matricula(LocalDate.now(), c, a));
             acceso.salvar();
             dataCursosDisponibles.remove(c);
-            //Si el curso se encontraba seleccionado en la lista de cursos, añadimos al nuevo alumno
-            Curso selC = listCursos.getSelectionModel().getSelectedItem();
-            if (selC != null && c.getTitulodelcurso().equals(selC.getTitulodelcurso())) dataAlumnosDeCurso.add(a);
             //Actualiza la lista de cursos disponibles (ya que para el alumno seleccionado podría haber cambiado)
             dataCursosDisponibles = getAvailableCursos(a);
             comboCursos.setItems(dataCursosDisponibles);
