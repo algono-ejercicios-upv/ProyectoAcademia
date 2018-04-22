@@ -205,6 +205,7 @@ public class DialogueCursoController implements Initializable {
         };
         //No permitimos la creación de un curso con maxAlumnos = 0, ya que no tendría sentido
         spinnerMaxAlumnos.setValueFactory(new IntegerSpinnerValueFactory(1, Integer.MAX_VALUE));
+        //Añadimos los ValueFactory para los spinners (horas, minutos)
         IntegerSpinnerValueFactory vF = new IntegerSpinnerValueFactory(0, 23);
         vF.setConverter(timeConverter);
         vF.setWrapAround(true);
@@ -213,7 +214,13 @@ public class DialogueCursoController implements Initializable {
         vF.setConverter(timeConverter);
         vF.setWrapAround(true);
         spinnerMinutes.setValueFactory(vF);
+        //Inicializamos los DatePicker a la fecha actual
         dateInicio.setValue(LocalDate.now());
         dateFin.setValue(LocalDate.now());
+        //Hacemos que cuando pases del min 59 al 00 la hora aumente en 1, y viceversa.
+        spinnerMinutes.valueProperty().addListener((obs, oldValue, newValue) -> {
+            if (oldValue == 59 && newValue == 0) { spinnerHours.increment(); }
+            else if (oldValue == 0 && newValue == 59) { spinnerHours.decrement(); }
+        });
     }
 }
